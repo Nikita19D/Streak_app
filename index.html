@@ -3,14 +3,50 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Streak Tracker</title>
+  <meta name="description" content="Streak Tracker - Build lasting habits with AI-powered insights, beautiful fire animations, and comprehensive analytics">
+  <title>Streak Tracker - Habit & Goal Tracker</title>
+  
+  <!-- React and ReactDOM from CDN -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  
+  <!-- Babel Standalone for JSX -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Recharts -->
+  <script src="https://unpkg.com/recharts@2.5.0/dist/Recharts.js"></script>
+  
+  <!-- Lucide React Icons -->
+  <script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide-react.js"></script>
+  
   <style>
-    body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; }
-    * { box-sizing: border-box; }
+    @keyframes slide-up {
+      from {
+        transform: translateY(100px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    .animate-slide-up {
+      animation: slide-up 0.3s ease-out;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    #root {
+      width: 100%;
+      height: 100vh;
+    }
   </style>
 </head>
 <body>
@@ -18,15 +54,18 @@
   
   <script type="text/babel">
     const { useState, useEffect } = React;
+    const { 
+      Flame, Plus, TrendingUp, Settings, Home, X, Check, 
+      Edit2, Trophy, Target, Trash2 
+    } = lucide;
+    const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } = Recharts;
 
     const getToday = () => new Date().toISOString().split('T')[0];
     const generateId = () => Math.random().toString(36).substr(2, 9);
 
-    // Fire Animation Component
-    const FireAnimation = ({ streak, style = 'demonslayer' }) => {
+    const FireAnimation = ({ streak, style = 'getsuga' }) => {
       let color = '#FB923C';
       let secondaryColor = '#F97316';
-      
       if (streak >= 100) {
         color = '#3B0764';
         secondaryColor = '#7C3AED';
@@ -51,38 +90,78 @@
                   <stop offset="50%" stopColor={color} stopOpacity="0.8" />
                   <stop offset="100%" stopColor="#1E3A8A" stopOpacity="0.3" />
                 </linearGradient>
+                <linearGradient id={`getsugaCore-${streak}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#DBEAFE" />
+                  <stop offset="100%" stopColor="#60A5FA" />
+                </linearGradient>
+                <filter id={`getsugaGlow-${streak}`}>
+                  <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
               </defs>
               
               <path d="M 15 75 Q 10 55 15 35 Q 20 20 30 10 L 40 5 L 50 10 Q 60 20 65 35 Q 70 55 65 75 L 40 85 Z" 
                     fill={`url(#getsugatGrad-${streak})`}
                     stroke="#3B82F6"
                     strokeWidth="1"
-                    opacity="0.85">
+                    opacity="0.85"
+                    filter={`url(#getsugaGlow-${streak})`}>
                 <animate attributeName="d" 
                          values="M 15 75 Q 10 55 15 35 Q 20 20 30 10 L 40 5 L 50 10 Q 60 20 65 35 Q 70 55 65 75 L 40 85 Z;M 15 75 Q 8 52 18 32 Q 22 18 32 8 L 40 3 L 48 8 Q 58 18 62 32 Q 72 52 65 75 L 40 85 Z;M 15 75 Q 10 55 15 35 Q 20 20 30 10 L 40 5 L 50 10 Q 60 20 65 35 Q 70 55 65 75 L 40 85 Z" 
                          dur="2s" 
                          repeatCount="indefinite" />
               </path>
 
-              {[...Array(6)].map((_, i) => (
-                <line 
-                  key={i}
-                  x1={20 + i * 8} 
-                  y1="80"
-                  x2={25 + i * 8}
-                  y2="10"
-                  stroke="#60A5FA"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  opacity="0">
-                  <animate 
-                    attributeName="opacity" 
-                    values="0;0.8;0" 
-                    dur={`${1.2 + (i * 0.15)}s`} 
-                    repeatCount="indefinite"
-                    begin={`${i * 0.2}s`} />
-                </line>
-              ))}
+              <path d="M 25 70 Q 22 55 27 40 Q 30 30 35 22 L 40 18 L 45 22 Q 50 30 53 40 Q 58 55 55 70 L 40 75 Z" 
+                    fill={`url(#getsugaCore-${streak})`}
+                    opacity="0.7">
+                <animate attributeName="d" 
+                         values="M 25 70 Q 22 55 27 40 Q 30 30 35 22 L 40 18 L 45 22 Q 50 30 53 40 Q 58 55 55 70 L 40 75 Z;M 25 70 Q 20 52 29 38 Q 32 28 36 20 L 40 16 L 44 20 Q 48 28 51 38 Q 60 52 55 70 L 40 75 Z;M 25 70 Q 22 55 27 40 Q 30 30 35 22 L 40 18 L 45 22 Q 50 30 53 40 Q 58 55 55 70 L 40 75 Z" 
+                         dur="1.8s" 
+                         repeatCount="indefinite" />
+              </path>
+
+              {[...Array(10)].map((_, i) => {
+                const x = 25 + (i % 5) * 7;
+                const delay = i * 0.15;
+                return (
+                  <rect 
+                    key={`particle-${i}`}
+                    x={x} 
+                    y="85"
+                    width="2" 
+                    height="6" 
+                    fill="#3B82F6" 
+                    opacity="0">
+                    <animate 
+                      attributeName="y" 
+                      values="85;15;85" 
+                      dur="2s" 
+                      repeatCount="indefinite"
+                      begin={`${delay}s`} />
+                    <animate 
+                      attributeName="opacity" 
+                      values="0;0.9;0" 
+                      dur="2s" 
+                      repeatCount="indefinite"
+                      begin={`${delay}s`} />
+                    <animate 
+                      attributeName="height" 
+                      values="6;10;6" 
+                      dur="2s" 
+                      repeatCount="indefinite"
+                      begin={`${delay}s`} />
+                  </rect>
+                );
+              })}
+
+              <ellipse cx="40" cy="50" rx="6" ry="12" fill="#DBEAFE" opacity="0.5">
+                <animate attributeName="opacity" values="0.5;0.8;0.5" dur="1.5s" repeatCount="indefinite" />
+              </ellipse>
             </svg>
             
             <div className="absolute text-2xl font-bold text-white z-10" 
@@ -96,33 +175,183 @@
         );
       }
 
-      return (
-        <div className="relative flex items-center justify-center w-20 h-24">
-          <svg width="80" height="100" className="absolute">
-            <defs>
-              <radialGradient id={`fireGrad-${streak}`}>
-                <stop offset="0%" stopColor="#FCD34D" />
-                <stop offset="50%" stopColor={color} />
-                <stop offset="100%" stopColor={color} stopOpacity="0.3" />
-              </radialGradient>
-            </defs>
-            <ellipse cx="40" cy="70" rx="20" ry="35" fill={`url(#fireGrad-${streak})`}>
-              <animate attributeName="ry" values="35;40;35" dur="1.5s" repeatCount="indefinite" />
-            </ellipse>
-          </svg>
-          <div className="absolute text-2xl font-bold text-white z-10" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)' }}>
-            {streak}
+      if (style === 'demonslayer') {
+        return (
+          <div className="relative flex items-center justify-center w-20 h-24">
+            <svg width="80" height="100" className="absolute" style={{ filter: 'drop-shadow(0 0 10px rgba(251, 146, 60, 0.8))' }}>
+              <defs>
+                <radialGradient id={`dsGrad1-${streak}`}>
+                  <stop offset="0%" stopColor="#FFF7ED" />
+                  <stop offset="40%" stopColor="#FB923C" />
+                  <stop offset="80%" stopColor={color} />
+                  <stop offset="100%" stopColor={color} stopOpacity="0" />
+                </radialGradient>
+                <filter id={`dsGlow-${streak}`}>
+                  <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+              
+              <path d="M 30 85 L 25 70 Q 22 55 28 40 L 32 25 L 40 12 L 48 25 L 52 40 Q 58 55 55 70 L 50 85 Z" 
+                    fill={`url(#dsGrad1-${streak})`}
+                    stroke={secondaryColor}
+                    strokeWidth="0.5"
+                    opacity="0.9"
+                    filter={`url(#dsGlow-${streak})`}>
+                <animate attributeName="d" 
+                         values="M 30 85 L 25 70 Q 22 55 28 40 L 32 25 L 40 12 L 48 25 L 52 40 Q 58 55 55 70 L 50 85 Z;M 30 85 L 23 68 Q 20 52 30 37 L 35 22 L 40 8 L 45 22 L 50 37 Q 60 52 57 68 L 50 85 Z;M 30 85 L 25 70 Q 22 55 28 40 L 32 25 L 40 12 L 48 25 L 52 40 Q 58 55 55 70 L 50 85 Z" 
+                         dur="1.8s" 
+                         repeatCount="indefinite" />
+              </path>
+
+              <ellipse cx="40" cy="60" rx="8" ry="15" fill="#FFF7ED" opacity="0.6">
+                <animate attributeName="ry" values="15;18;15" dur="1.2s" repeatCount="indefinite" />
+              </ellipse>
+
+              {[...Array(8)].map((_, i) => (
+                <circle key={i} r="1.5" fill="#FCD34D" opacity="0.9">
+                  <animate attributeName="cy" values={`${85};${15};${85}`} dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
+                  <animate attributeName="cx" values={`${30 + i * 3};${32 + i * 3};${30 + i * 3}`} dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.9;0.3;0.9" dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
+                </circle>
+              ))}
+            </svg>
+            
+            <div className="absolute text-2xl font-bold text-white z-10" 
+                 style={{ 
+                   textShadow: `0 0 10px ${color}, 2px 2px 8px rgba(0,0,0,0.8)`,
+                   fontWeight: '900'
+                 }}>
+              {streak}
+            </div>
           </div>
-        </div>
-      );
+        );
+      }
+
+      if (style === 'anime') {
+        return (
+          <div className="relative flex items-center justify-center w-20 h-24">
+            <svg width="80" height="100" className="absolute">
+              <defs>
+                <radialGradient id={`fireGrad-${streak}`}>
+                  <stop offset="0%" stopColor="#FCD34D" />
+                  <stop offset="50%" stopColor={color} />
+                  <stop offset="100%" stopColor={color} stopOpacity="0.3" />
+                </radialGradient>
+              </defs>
+              <ellipse cx="40" cy="70" rx="20" ry="35" fill={`url(#fireGrad-${streak})`}>
+                <animate attributeName="ry" values="35;40;35" dur="1.5s" repeatCount="indefinite" />
+              </ellipse>
+              <ellipse cx="30" cy="65" rx="15" ry="30" fill={color} opacity="0.7">
+                <animate attributeName="ry" values="30;35;30" dur="1.2s" repeatCount="indefinite" />
+              </ellipse>
+              <ellipse cx="50" cy="65" rx="15" ry="30" fill={color} opacity="0.7">
+                <animate attributeName="ry" values="30;35;30" dur="1.8s" repeatCount="indefinite" />
+              </ellipse>
+              {[...Array(5)].map((_, i) => (
+                <circle key={i} r="2" fill="#FCD34D" opacity="0.8">
+                  <animate attributeName="cy" values="80;20;80" dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
+                  <animate attributeName="cx" values={`${30 + i * 5};${28 + i * 5};${30 + i * 5}`} dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.8;0;0.8" dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
+                </circle>
+              ))}
+            </svg>
+            <div className="absolute text-2xl font-bold text-white z-10" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)' }}>
+              {streak}
+            </div>
+          </div>
+        );
+      }
+
+      if (style === 'simple') {
+        return (
+          <div className="relative flex items-center justify-center w-20 h-24">
+            <div className="absolute text-2xl font-bold text-white z-10" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)' }}>
+              {streak}
+            </div>
+            <div className="absolute w-12 h-16 rounded-full animate-pulse" style={{ backgroundColor: color, filter: 'blur(8px)' }}></div>
+          </div>
+        );
+      }
+
+      if (style === 'realistic') {
+        return (
+          <div className="relative flex items-center justify-center w-20 h-24">
+            <svg width="80" height="100" className="absolute">
+              <defs>
+                <radialGradient id={`realisticGrad-${streak}`}>
+                  <stop offset="0%" stopColor="#FFF4E6" />
+                  <stop offset="30%" stopColor="#FCD34D" />
+                  <stop offset="60%" stopColor={color} />
+                  <stop offset="100%" stopColor={color} stopOpacity="0" />
+                </radialGradient>
+                <filter id={`glow-${streak}`}>
+                  <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+              
+              <path d="M 25 80 Q 20 60 25 40 Q 30 25 40 15 Q 50 25 55 40 Q 60 60 55 80 Z" 
+                    fill={`url(#realisticGrad-${streak})`} 
+                    filter={`url(#glow-${streak})`}>
+                <animate attributeName="d" 
+                         values="M 25 80 Q 20 60 25 40 Q 30 25 40 15 Q 50 25 55 40 Q 60 60 55 80 Z;M 25 80 Q 18 55 28 35 Q 32 20 40 10 Q 48 20 52 35 Q 62 55 55 80 Z;M 25 80 Q 20 60 25 40 Q 30 25 40 15 Q 50 25 55 40 Q 60 60 55 80 Z" 
+                         dur="2s" 
+                         repeatCount="indefinite" />
+              </path>
+              
+              <path d="M 30 75 Q 28 60 32 45 Q 35 35 40 28 Q 45 35 48 45 Q 52 60 50 75 Z" 
+                    fill="#FCD34D" 
+                    opacity="0.6">
+                <animate attributeName="d" 
+                         values="M 30 75 Q 28 60 32 45 Q 35 35 40 28 Q 45 35 48 45 Q 52 60 50 75 Z;M 30 75 Q 26 58 34 42 Q 36 32 40 25 Q 44 32 46 42 Q 54 58 50 75 Z;M 30 75 Q 28 60 32 45 Q 35 35 40 28 Q 45 35 48 45 Q 52 60 50 75 Z" 
+                         dur="1.5s" 
+                         repeatCount="indefinite" />
+              </path>
+
+              {[...Array(8)].map((_, i) => (
+                <circle key={i} r="1.5" fill="#FFF4E6" opacity="0.9">
+                  <animate attributeName="cy" values={`${85 - i * 5};${20 - i * 2};${85 - i * 5}`} dur={`${1.5 + i * 0.2}s`} repeatCount="indefinite" />
+                  <animate attributeName="cx" values={`${35 + i * 1.2};${38 + i * 1.2};${35 + i * 1.2}`} dur={`${1.5 + i * 0.2}s`} repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.9;0;0.9" dur={`${1.5 + i * 0.2}s`} repeatCount="indefinite" />
+                </circle>
+              ))}
+            </svg>
+            <div className="absolute text-2xl font-bold text-white z-10" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)' }}>
+              {streak}
+            </div>
+          </div>
+        );
+      }
+
+      return null;
     };
 
-    // Initialize demo data
     const initData = () => {
       const habits = [
-        { id: 'h1', name: '🏃 Morning Exercise', description: 'Daily workout routine', mode: 'habit', createdDate: '2024-10-15', currentStreak: 15, longestStreak: 18 },
-        { id: 'h2', name: '📚 Daily Reading', description: 'Read for 30 minutes', mode: 'habit', createdDate: '2024-10-07', currentStreak: 23, longestStreak: 23 },
-        { id: 'h3', name: '🇪🇸 Learn Spanish', description: 'Practice Spanish daily', mode: 'progress', createdDate: '2024-10-22', currentStreak: 8, longestStreak: 12 },
+        { id: 'h1', name: '🔥 365 Days - 1 Year!', description: 'Ultimate mastery achieved', mode: 'habit', createdDate: '2023-09-25', currentStreak: 365, longestStreak: 365 },
+        { id: 'h2', name: '🌟 200 Days Strong', description: 'Legendary consistency', mode: 'habit', createdDate: '2024-02-10', currentStreak: 200, longestStreak: 200 },
+        { id: 'h3', name: '💎 150 Days Elite', description: 'Elite level reached', mode: 'habit', createdDate: '2024-04-20', currentStreak: 150, longestStreak: 150 },
+        { id: 'h4', name: '💯 100 Day Milestone', description: 'Century club member', mode: 'habit', createdDate: '2024-06-15', currentStreak: 100, longestStreak: 105 },
+        { id: 'h5', name: '🎯 75 Days Solid', description: 'Three quarters to 100', mode: 'habit', createdDate: '2024-07-10', currentStreak: 75, longestStreak: 75 },
+        { id: 'h6', name: '⚡ 50 Day Champion', description: 'Half century complete', mode: 'habit', createdDate: '2024-08-05', currentStreak: 50, longestStreak: 52 },
+        { id: 'h7', name: '🚀 40 Days Rising', description: 'Approaching 50', mode: 'progress', createdDate: '2024-08-15', currentStreak: 40, longestStreak: 40 },
+        { id: 'h8', name: '⭐ 30 Days Strong', description: 'One month achieved', mode: 'habit', createdDate: '2024-08-25', currentStreak: 30, longestStreak: 30 },
+        { id: 'h9', name: '🌈 25 Days Steady', description: 'Nearly one month', mode: 'progress', createdDate: '2024-08-30', currentStreak: 25, longestStreak: 25 },
+        { id: 'h10', name: '✨ 20 Days Rolling', description: 'Building momentum', mode: 'habit', createdDate: '2024-09-04', currentStreak: 20, longestStreak: 20 },
+        { id: 'h11', name: '🎪 15 Days Active', description: 'Two weeks plus', mode: 'progress', createdDate: '2024-09-09', currentStreak: 15, longestStreak: 17 },
+        { id: 'h12', name: '🌟 10 Day Mark', description: 'Double digits!', mode: 'habit', createdDate: '2024-09-14', currentStreak: 10, longestStreak: 15 },
+        { id: 'h13', name: '💪 8 Days Going', description: 'Over a week', mode: 'habit', createdDate: '2024-09-16', currentStreak: 8, longestStreak: 8 },
+        { id: 'h14', name: '🎯 5 Days Fresh', description: 'First milestone reached', mode: 'progress', createdDate: '2024-09-19', currentStreak: 5, longestStreak: 5 },
+        { id: 'h15', name: '🌱 3 Days New', description: 'Just getting started', mode: 'habit', createdDate: '2024-09-21', currentStreak: 3, longestStreak: 3 },
+        { id: 'h16', name: '🔰 1 Day Beginner', description: 'Day one complete!', mode: 'habit', createdDate: '2024-09-23', currentStreak: 1, longestStreak: 1 }
       ];
 
       const checkIns = [];
@@ -134,10 +363,16 @@
           date.setDate(date.getDate() - i);
           const dateStr = date.toISOString().split('T')[0];
           
-          const notes = i === 0 
-            ? 'Completed 30 min run in the park, followed by 15 min stretching. Felt energized!'
-            : 'Great session today! Staying consistent with my routine.';
-          const rating = Math.floor(Math.random() * 3) + 7;
+          const noteTemplates = [
+            'Completed my session today. Felt great and pushed myself hard!',
+            'Another day done! Really proud of maintaining this consistency.',
+            'Excellent progress today. Went beyond my usual routine.',
+            'Solid day. Kept up the momentum and stayed committed to my goals.',
+            'Really motivated today. Completed everything with energy to spare!'
+          ];
+          
+          const notes = noteTemplates[Math.floor(Math.random() * noteTemplates.length)];
+          const rating = notes.length > 80 ? Math.floor(Math.random() * 2) + 9 : Math.floor(Math.random() * 3) + 7;
           
           checkIns.push({
             id: generateId(),
@@ -146,8 +381,13 @@
             notes,
             completed: true,
             aiRating: rating,
-            aiFeedback: 'Great work! Your consistency is building momentum.',
-            aiAdvice: 'Try adding more specific details about your progress.'
+            aiFeedback: rating >= 9 
+              ? 'Outstanding effort! Your detailed notes show true commitment. Keep this momentum going!'
+              : 'Great consistency! You\'re building a strong habit. Consider adding more detail to track your progress better.',
+            aiAdvice: rating >= 9
+              ? 'To maintain this momentum, try setting a new challenge or helping others build similar habits.'
+              : 'Tomorrow, try to include specific metrics, times, or measurements to track your improvement.',
+            aiAnalyzedAt: new Date().toISOString()
           });
         }
       });
@@ -155,429 +395,5 @@
       return { habits, checkIns, holidays: [] };
     };
 
-    // Main App Component
     function App() {
-      const [view, setView] = useState('dashboard');
-      const [habits, setHabits] = useState([]);
-      const [checkIns, setCheckIns] = useState([]);
-      const [toast, setToast] = useState('');
-      const [modal, setModal] = useState(null);
-      const [formData, setFormData] = useState({});
-      const [selectedHabit, setSelectedHabit] = useState(null);
-      const [hfToken, setHfToken] = useState('');
-      const [hfModel, setHfModel] = useState('microsoft/Phi-3-mini-4k-instruct');
-      const [isTokenSaved, setIsTokenSaved] = useState(false);
-      const [loadingAI, setLoadingAI] = useState(false);
-
-      useEffect(() => {
-        const stored = localStorage.getItem('streakData');
-        if (stored) {
-          const data = JSON.parse(stored);
-          setHabits(data.habits || []);
-          setCheckIns(data.checkIns || []);
-        } else {
-          const data = initData();
-          setHabits(data.habits);
-          setCheckIns(data.checkIns);
-        }
-        
-        const savedToken = localStorage.getItem('hf_token');
-        const savedModel = localStorage.getItem('hf_model');
-        if (savedToken) {
-          setHfToken(savedToken);
-          setIsTokenSaved(true);
-        }
-        if (savedModel) setHfModel(savedModel);
-      }, []);
-
-      useEffect(() => {
-        if (habits.length > 0) {
-          localStorage.setItem('streakData', JSON.stringify({ habits, checkIns }));
-        }
-      }, [habits, checkIns]);
-
-      const showToast = (msg) => {
-        setToast(msg);
-        setTimeout(() => setToast(''), 3000);
-      };
-
-      const addHabit = () => {
-        const newHabit = {
-          id: generateId(),
-          name: formData.name,
-          description: formData.description,
-          mode: formData.mode || 'habit',
-          createdDate: getToday(),
-          currentStreak: 0,
-          longestStreak: 0
-        };
-        setHabits([...habits, newHabit]);
-        setModal(null);
-        showToast('Habit added!');
-      };
-
-      const checkIn = (habitId) => {
-        const today = getToday();
-        const existing = checkIns.find(c => c.habitId === habitId && c.date === today);
-        
-        if (existing) {
-          showToast('Already checked in today!');
-          return;
-        }
-
-        const newCheckIn = {
-          id: generateId(),
-          habitId,
-          date: today,
-          notes: formData.notes || 'Completed today',
-          completed: true,
-          aiRating: null,
-          aiFeedback: null,
-          aiAdvice: null
-        };
-
-        const habit = habits.find(h => h.id === habitId);
-        const updatedHabit = {
-          ...habit,
-          currentStreak: habit.currentStreak + 1,
-          longestStreak: Math.max(habit.longestStreak, habit.currentStreak + 1)
-        };
-
-        setCheckIns([...checkIns, newCheckIn]);
-        setHabits(habits.map(h => h.id === habitId ? updatedHabit : h));
-        setModal(null);
-        showToast('Checked in! 🔥');
-      };
-
-      const getAIFeedback = async (checkInId) => {
-        if (!hfToken) {
-          showToast('❌ Please configure your Hugging Face token in Settings');
-          return;
-        }
-
-        setLoadingAI(true);
-        const checkIn = checkIns.find(c => c.id === checkInId);
-        const habit = habits.find(h => h.id === checkIn.habitId);
-
-        try {
-          const response = await fetch(`https://api-inference.huggingface.co/models/${hfModel}`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${hfToken}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              inputs: `Analyze this habit entry and respond with JSON only: {"rating": 8, "feedback": "Great work!", "advice": "Keep it up"}
-
-Habit: ${habit.name}
-Notes: ${checkIn.notes}
-
-Rate 1-10 and give encouraging feedback.`,
-              parameters: {
-                max_new_tokens: 200,
-                temperature: 0.7
-              }
-            })
-          });
-
-          if (!response.ok) throw new Error('API failed');
-
-          const data = await response.json();
-          let result = data[0]?.generated_text || JSON.stringify(data);
-          
-          const jsonMatch = result.match(/\{[\s\S]*\}/);
-          let feedback = {
-            rating: 8,
-            feedback: 'Great consistency! Keep building that habit.',
-            advice: 'Try adding more detail to track progress better.'
-          };
-
-          if (jsonMatch) {
-            feedback = JSON.parse(jsonMatch[0]);
-          }
-
-          const updatedCheckIn = {
-            ...checkIn,
-            aiRating: Math.min(Math.max(feedback.rating, 1), 10),
-            aiFeedback: feedback.feedback,
-            aiAdvice: feedback.advice
-          };
-
-          setCheckIns(checkIns.map(c => c.id === checkInId ? updatedCheckIn : c));
-          showToast('✅ AI feedback received!');
-        } catch (error) {
-          console.error('AI Error:', error);
-          showToast('⚠️ Using smart analysis (API failed)');
-          
-          const wordCount = checkIn.notes.split(/\s+/).length;
-          const rating = wordCount > 50 ? 8 : 7;
-          
-          const updatedCheckIn = {
-            ...checkIn,
-            aiRating: rating,
-            aiFeedback: 'Good work! Your consistency is key to success.',
-            aiAdvice: 'Consider adding more specific details about your accomplishments.'
-          };
-          
-          setCheckIns(checkIns.map(c => c.id === checkInId ? updatedCheckIn : c));
-        } finally {
-          setLoadingAI(false);
-        }
-      };
-
-      const saveToken = () => {
-        if (hfToken.trim()) {
-          localStorage.setItem('hf_token', hfToken);
-          setIsTokenSaved(true);
-          showToast('✅ Token saved!');
-        }
-      };
-
-      // Dashboard View
-      const renderDashboard = () => (
-        <div className="p-6">
-          <h1 className="text-3xl font-bold text-white mb-6">Dashboard</h1>
-          
-          {habits.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-2xl text-gray-400 mb-6">"The secret of getting ahead is getting started."</p>
-              <button 
-                onClick={() => { setModal('addHabit'); setFormData({}); }}
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700">
-                Add Your First Habit
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {habits.map(habit => (
-                <div 
-                  key={habit.id} 
-                  onClick={() => setSelectedHabit(habit)}
-                  className="bg-gray-800 rounded-lg p-6 cursor-pointer hover:bg-gray-700 transition">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-bold text-white">{habit.name}</h3>
-                    <FireAnimation streak={habit.currentStreak} style="getsuga" />
-                  </div>
-                  <p className="text-gray-400 text-sm mb-4">{habit.description}</p>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-green-400">Current: {habit.currentStreak}</span>
-                    <span className="text-blue-400">Best: {habit.longestStreak}</span>
-                  </div>
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); setModal('checkIn'); setFormData({ habitId: habit.id }); }}
-                    className="w-full mt-4 bg-green-600 text-white py-2 rounded hover:bg-green-700">
-                    ✓ Check In Today
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <button 
-            onClick={() => { setModal('addHabit'); setFormData({}); }}
-            className="fixed bottom-6 right-6 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 text-2xl">
-            +
-          </button>
-        </div>
-      );
-
-      // Habit Detail View
-      const renderHabitDetail = () => {
-        if (!selectedHabit) return null;
-        
-        const habitCheckIns = checkIns.filter(c => c.habitId === selectedHabit.id).sort((a, b) => b.date.localeCompare(a.date));
-        
-        return (
-          <div className="p-6">
-            <button onClick={() => setSelectedHabit(null)} className="text-blue-400 mb-4">← Back</button>
-            <h1 className="text-3xl font-bold text-white mb-6">{selectedHabit.name}</h1>
-            
-            <div className="space-y-4">
-              {habitCheckIns.map(checkIn => (
-                <div key={checkIn.id} className="bg-gray-800 rounded-lg p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <p className="text-gray-400 text-sm">{checkIn.date}</p>
-                      <p className="text-white mt-2">{checkIn.notes}</p>
-                    </div>
-                    {checkIn.aiRating && (
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-yellow-400">{checkIn.aiRating}/10</div>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {checkIn.aiRating ? (
-                    <div className="space-y-3">
-                      <div className="bg-blue-900/30 p-4 rounded">
-                        <p className="text-blue-300">{checkIn.aiFeedback}</p>
-                      </div>
-                      <div className="bg-green-900/30 p-4 rounded">
-                        <p className="text-sm text-gray-400 mb-1">💡 Advice:</p>
-                        <p className="text-green-300">{checkIn.aiAdvice}</p>
-                      </div>
-                    </div>
-                  ) : (
-                    <button 
-                      onClick={() => getAIFeedback(checkIn.id)}
-                      disabled={loadingAI}
-                      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50">
-                      {loadingAI ? 'Analyzing...' : 'Get AI Feedback'}
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      };
-
-      // Settings View
-      const renderSettings = () => (
-        <div className="p-6 max-w-2xl">
-          <h1 className="text-3xl font-bold text-white mb-6">Settings</h1>
-          
-          <div className="bg-gray-800 rounded-lg p-6 mb-6">
-            <h2 className="text-xl font-bold text-white mb-4">AI Configuration</h2>
-            
-            <div className="mb-4">
-              <label className="block text-gray-400 text-sm mb-2">Hugging Face Token</label>
-              <div className="flex gap-2">
-                <input 
-                  type="password"
-                  value={hfToken}
-                  onChange={(e) => setHfToken(e.target.value)}
-                  placeholder="hf_..."
-                  className="flex-1 bg-gray-700 text-white px-4 py-2 rounded" />
-                <button 
-                  onClick={saveToken}
-                  className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
-                  Save
-                </button>
-              </div>
-              {isTokenSaved && <p className="text-green-400 text-sm mt-2">✓ Token saved</p>}
-              <p className="text-gray-500 text-sm mt-2">
-                Get free token at: <a href="https://huggingface.co/settings/tokens" target="_blank" className="text-blue-400">huggingface.co/settings/tokens</a>
-              </p>
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-gray-400 text-sm mb-2">AI Model</label>
-              <select 
-                value={hfModel}
-                onChange={(e) => { setHfModel(e.target.value); localStorage.setItem('hf_model', e.target.value); }}
-                className="w-full bg-gray-700 text-white px-4 py-2 rounded">
-                <option value="microsoft/Phi-3-mini-4k-instruct">Phi-3 Mini (Recommended)</option>
-                <option value="meta-llama/Llama-3.2-3B-Instruct">Llama 3.2</option>
-                <option value="mistralai/Mistral-7B-Instruct-v0.2">Mistral 7B</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      );
-
-      // Modals
-      const renderModal = () => {
-        if (!modal) return null;
-
-        if (modal === 'addHabit') {
-          return (
-            <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-              <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full">
-                <h2 className="text-2xl font-bold text-white mb-4">Add New Habit</h2>
-                <input 
-                  type="text"
-                  placeholder="Habit name"
-                  value={formData.name || ''}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  className="w-full bg-gray-700 text-white px-4 py-2 rounded mb-3" />
-                <textarea 
-                  placeholder="Description"
-                  value={formData.description || ''}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  className="w-full bg-gray-700 text-white px-4 py-2 rounded mb-3" rows="3" />
-                <select 
-                  value={formData.mode || 'habit'}
-                  onChange={(e) => setFormData({...formData, mode: e.target.value})}
-                  className="w-full bg-gray-700 text-white px-4 py-2 rounded mb-4">
-                  <option value="habit">Habit</option>
-                  <option value="progress">Progress</option>
-                </select>
-                <div className="flex gap-3">
-                  <button onClick={addHabit} className="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Add</button>
-                  <button onClick={() => setModal(null)} className="flex-1 bg-gray-600 text-white py-2 rounded hover:bg-gray-700">Cancel</button>
-                </div>
-              </div>
-            </div>
-          );
-        }
-
-        if (modal === 'checkIn') {
-          return (
-            <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-              <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full">
-                <h2 className="text-2xl font-bold text-white mb-4">Check In</h2>
-                <textarea 
-                  placeholder="What did you accomplish today? (10-500 characters)"
-                  value={formData.notes || ''}
-                  onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                  className="w-full bg-gray-700 text-white px-4 py-2 rounded mb-4" 
-                  rows="4" />
-                <div className="flex gap-3">
-                  <button 
-                    onClick={() => checkIn(formData.habitId)} 
-                    disabled={!formData.notes || formData.notes.length < 10}
-                    className="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 disabled:opacity-50">
-                    Check In
-                  </button>
-                  <button onClick={() => setModal(null)} className="flex-1 bg-gray-600 text-white py-2 rounded hover:bg-gray-700">Cancel</button>
-                </div>
-              </div>
-            </div>
-          );
-        }
-      };
-
-      return (
-        <div className="min-h-screen bg-gray-900">
-          {/* Sidebar */}
-          <div className="fixed left-0 top-0 h-full w-64 bg-gray-800 p-6">
-            <h1 className="text-2xl font-bold text-white mb-8">Streak Tracker</h1>
-            <nav className="space-y-2">
-              <button 
-                onClick={() => { setView('dashboard'); setSelectedHabit(null); }}
-                className={`w-full text-left px-4 py-3 rounded ${view === 'dashboard' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:bg-gray-700'}`}>
-                🏠 Dashboard
-              </button>
-              <button 
-                onClick={() => setView('settings')}
-                className={`w-full text-left px-4 py-3 rounded ${view === 'settings' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:bg-gray-700'}`}>
-                ⚙️ Settings
-              </button>
-            </nav>
-          </div>
-
-          {/* Main Content */}
-          <div className="ml-64">
-            {selectedHabit ? renderHabitDetail() : view === 'settings' ? renderSettings() : renderDashboard()}
-          </div>
-
-          {/* Toast */}
-          {toast && (
-            <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg">
-              {toast}
-            </div>
-          )}
-
-          {/* Modals */}
-          {renderModal()}
-        </div>
-      );
-    }
-
-    // Render app
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
-  </script>
-</body>
-</html>
+      const [view, se
