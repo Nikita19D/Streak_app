@@ -1,0 +1,1501 @@
+import React, { useState, useEffect } from 'react';
+import { Flame, Plus, TrendingUp, Settings, Home, X, Check, Edit2, Trophy, Target, Trash2 } from 'lucide-react';
+
+const getToday = () => new Date().toISOString().split('T')[0];
+const generateId = () => Math.random().toString(36).substr(2, 9);
+
+const FireAnimation = ({ streak, style = 'demonslayer' }) => {
+  let color = '#FB923C';
+  let secondaryColor = '#F97316';
+  if (streak >= 100) {
+    color = '#3B0764';
+    secondaryColor = '#7C3AED';
+  } else if (streak >= 50) {
+    color = '#581C87';
+    secondaryColor = '#A855F7';
+  } else if (streak >= 10) {
+    color = '#C4B5FD';
+    secondaryColor = '#8B5CF6';
+  } else if (streak >= 5) {
+    color = '#A855F7';
+    secondaryColor = '#C084FC';
+  }
+
+  if (style === 'getsuga') {
+    return (
+      <div className="relative flex items-center justify-center w-20 h-24">
+        <svg width="80" height="100" className="absolute" style={{ filter: 'drop-shadow(0 0 15px rgba(59, 130, 246, 0.8))' }}>
+          <defs>
+            <linearGradient id={`getsugatGrad-${streak}`} x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.9" />
+              <stop offset="50%" stopColor={color} stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#1E3A8A" stopOpacity="0.3" />
+            </linearGradient>
+            <linearGradient id={`getsugaCore-${streak}`} x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#DBEAFE" />
+              <stop offset="100%" stopColor="#60A5FA" />
+            </linearGradient>
+            <filter id={`getsugaGlow-${streak}`}>
+              <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          
+          {/* Crescent wave shape */}
+          <path d="M 15 75 Q 10 55 15 35 Q 20 20 30 10 L 40 5 L 50 10 Q 60 20 65 35 Q 70 55 65 75 L 40 85 Z" 
+                fill={`url(#getsugatGrad-${streak})`}
+                stroke="#3B82F6"
+                strokeWidth="1"
+                opacity="0.85"
+                filter={`url(#getsugaGlow-${streak})`}>
+            <animate attributeName="d" 
+                     values="M 15 75 Q 10 55 15 35 Q 20 20 30 10 L 40 5 L 50 10 Q 60 20 65 35 Q 70 55 65 75 L 40 85 Z;M 15 75 Q 8 52 18 32 Q 22 18 32 8 L 40 3 L 48 8 Q 58 18 62 32 Q 72 52 65 75 L 40 85 Z;M 15 75 Q 10 55 15 35 Q 20 20 30 10 L 40 5 L 50 10 Q 60 20 65 35 Q 70 55 65 75 L 40 85 Z" 
+                     dur="2s" 
+                     repeatCount="indefinite" />
+          </path>
+
+          {/* Inner crescent */}
+          <path d="M 25 70 Q 22 55 27 40 Q 30 30 35 22 L 40 18 L 45 22 Q 50 30 53 40 Q 58 55 55 70 L 40 75 Z" 
+                fill={`url(#getsugaCore-${streak})`}
+                opacity="0.7">
+            <animate attributeName="d" 
+                     values="M 25 70 Q 22 55 27 40 Q 30 30 35 22 L 40 18 L 45 22 Q 50 30 53 40 Q 58 55 55 70 L 40 75 Z;M 25 70 Q 20 52 29 38 Q 32 28 36 20 L 40 16 L 44 20 Q 48 28 51 38 Q 60 52 55 70 L 40 75 Z;M 25 70 Q 22 55 27 40 Q 30 30 35 22 L 40 18 L 45 22 Q 50 30 53 40 Q 58 55 55 70 L 40 75 Z" 
+                     dur="1.8s" 
+                     repeatCount="indefinite" />
+          </path>
+
+          {/* Energy trails/streaks */}
+          {[...Array(6)].map((_, i) => {
+            const startX = 20 + i * 8;
+            const angle = -30 + i * 12;
+            return (
+              <g key={i}>
+                <line 
+                  x1={startX} 
+                  y1="80"
+                  x2={startX + 5}
+                  y2="10"
+                  stroke="#60A5FA"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  opacity="0">
+                  <animate 
+                    attributeName="opacity" 
+                    values="0;0.8;0" 
+                    dur={`${1.2 + (i * 0.15)}s`} 
+                    repeatCount="indefinite"
+                    begin={`${i * 0.2}s`} />
+                  <animate 
+                    attributeName="y2" 
+                    values="80;10;80" 
+                    dur={`${1.2 + (i * 0.15)}s`} 
+                    repeatCount="indefinite"
+                    begin={`${i * 0.2}s`} />
+                </line>
+              </g>
+            );
+          })}
+
+          {/* Spiritual pressure particles */}
+          {[...Array(10)].map((_, i) => {
+            const x = 25 + (i % 5) * 7;
+            const delay = i * 0.15;
+            return (
+              <rect 
+                key={`particle-${i}`}
+                x={x} 
+                y="85"
+                width="2" 
+                height="6" 
+                fill="#3B82F6" 
+                opacity="0">
+                <animate 
+                  attributeName="y" 
+                  values="85;15;85" 
+                  dur="2s" 
+                  repeatCount="indefinite"
+                  begin={`${delay}s`} />
+                <animate 
+                  attributeName="opacity" 
+                  values="0;0.9;0" 
+                  dur="2s" 
+                  repeatCount="indefinite"
+                  begin={`${delay}s`} />
+                <animate 
+                  attributeName="height" 
+                  values="6;10;6" 
+                  dur="2s" 
+                  repeatCount="indefinite"
+                  begin={`${delay}s`} />
+              </rect>
+            );
+          })}
+
+          {/* Bright core flash */}
+          <ellipse cx="40" cy="50" rx="6" ry="12" fill="#DBEAFE" opacity="0.5">
+            <animate attributeName="opacity" values="0.5;0.8;0.5" dur="1.5s" repeatCount="indefinite" />
+          </ellipse>
+        </svg>
+        
+        <div className="absolute text-2xl font-bold text-white z-10" 
+             style={{ 
+               textShadow: `0 0 10px #3B82F6, 2px 2px 8px rgba(0,0,0,0.9)`,
+               fontWeight: '900'
+             }}>
+          {streak}
+        </div>
+      </div>
+    );
+  }
+
+  if (style === 'demonslayer') {
+    return (
+      <div className="relative flex items-center justify-center w-20 h-24">
+        <svg width="80" height="100" className="absolute" style={{ filter: 'drop-shadow(0 0 10px rgba(251, 146, 60, 0.8))' }}>
+          <defs>
+            <radialGradient id={`dsGrad1-${streak}`}>
+              <stop offset="0%" stopColor="#FFF7ED" />
+              <stop offset="40%" stopColor="#FB923C" />
+              <stop offset="80%" stopColor={color} />
+              <stop offset="100%" stopColor={color} stopOpacity="0" />
+            </radialGradient>
+            <filter id={`dsGlow-${streak}`}>
+              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          
+          <path d="M 30 85 L 25 70 Q 22 55 28 40 L 32 25 L 40 12 L 48 25 L 52 40 Q 58 55 55 70 L 50 85 Z" 
+                fill={`url(#dsGrad1-${streak})`}
+                stroke={secondaryColor}
+                strokeWidth="0.5"
+                opacity="0.9"
+                filter={`url(#dsGlow-${streak})`}>
+            <animate attributeName="d" 
+                     values="M 30 85 L 25 70 Q 22 55 28 40 L 32 25 L 40 12 L 48 25 L 52 40 Q 58 55 55 70 L 50 85 Z;M 30 85 L 23 68 Q 20 52 30 37 L 35 22 L 40 8 L 45 22 L 50 37 Q 60 52 57 68 L 50 85 Z;M 30 85 L 25 70 Q 22 55 28 40 L 32 25 L 40 12 L 48 25 L 52 40 Q 58 55 55 70 L 50 85 Z" 
+                     dur="1.8s" 
+                     repeatCount="indefinite" />
+          </path>
+
+          <ellipse cx="40" cy="60" rx="8" ry="15" fill="#FFF7ED" opacity="0.6">
+            <animate attributeName="ry" values="15;18;15" dur="1.2s" repeatCount="indefinite" />
+          </ellipse>
+
+          {[...Array(8)].map((_, i) => (
+            <circle key={i} r="1.5" fill="#FCD34D" opacity="0.9">
+              <animate attributeName="cy" values={`${85};${15};${85}`} dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
+              <animate attributeName="cx" values={`${30 + i * 3};${32 + i * 3};${30 + i * 3}`} dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.9;0.3;0.9" dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
+            </circle>
+          ))}
+        </svg>
+        
+        <div className="absolute text-2xl font-bold text-white z-10" 
+             style={{ 
+               textShadow: `0 0 10px ${color}, 2px 2px 8px rgba(0,0,0,0.8)`,
+               fontWeight: '900'
+             }}>
+          {streak}
+        </div>
+      </div>
+    );
+  }
+
+  if (style === 'anime') {
+    return (
+      <div className="relative flex items-center justify-center w-20 h-24">
+        <svg width="80" height="100" className="absolute">
+          <defs>
+            <radialGradient id={`fireGrad-${streak}`}>
+              <stop offset="0%" stopColor="#FCD34D" />
+              <stop offset="50%" stopColor={color} />
+              <stop offset="100%" stopColor={color} stopOpacity="0.3" />
+            </radialGradient>
+          </defs>
+          <ellipse cx="40" cy="70" rx="20" ry="35" fill={`url(#fireGrad-${streak})`}>
+            <animate attributeName="ry" values="35;40;35" dur="1.5s" repeatCount="indefinite" />
+          </ellipse>
+          <ellipse cx="30" cy="65" rx="15" ry="30" fill={color} opacity="0.7">
+            <animate attributeName="ry" values="30;35;30" dur="1.2s" repeatCount="indefinite" />
+          </ellipse>
+          <ellipse cx="50" cy="65" rx="15" ry="30" fill={color} opacity="0.7">
+            <animate attributeName="ry" values="30;35;30" dur="1.8s" repeatCount="indefinite" />
+          </ellipse>
+          {[...Array(5)].map((_, i) => (
+            <circle key={i} r="2" fill="#FCD34D" opacity="0.8">
+              <animate attributeName="cy" values="80;20;80" dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
+              <animate attributeName="cx" values={`${30 + i * 5};${28 + i * 5};${30 + i * 5}`} dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.8;0;0.8" dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
+            </circle>
+          ))}
+        </svg>
+        <div className="absolute text-2xl font-bold text-white z-10" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)' }}>
+          {streak}
+        </div>
+      </div>
+    );
+  }
+
+  if (style === 'simple') {
+    return (
+      <div className="relative flex items-center justify-center w-20 h-24">
+        <div className="absolute text-2xl font-bold text-white z-10" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)' }}>
+          {streak}
+        </div>
+        <div className="absolute w-12 h-16 rounded-full animate-pulse" style={{ backgroundColor: color, filter: 'blur(8px)' }}></div>
+      </div>
+    );
+  }
+
+  if (style === 'realistic') {
+    return (
+      <div className="relative flex items-center justify-center w-20 h-24">
+        <svg width="80" height="100" className="absolute">
+          <defs>
+            <radialGradient id={`realisticGrad-${streak}`}>
+              <stop offset="0%" stopColor="#FFF4E6" />
+              <stop offset="30%" stopColor="#FCD34D" />
+              <stop offset="60%" stopColor={color} />
+              <stop offset="100%" stopColor={color} stopOpacity="0" />
+            </radialGradient>
+            <filter id={`glow-${streak}`}>
+              <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          
+          <path d="M 25 80 Q 20 60 25 40 Q 30 25 40 15 Q 50 25 55 40 Q 60 60 55 80 Z" 
+                fill={`url(#realisticGrad-${streak})`} 
+                filter={`url(#glow-${streak})`}>
+            <animate attributeName="d" 
+                     values="M 25 80 Q 20 60 25 40 Q 30 25 40 15 Q 50 25 55 40 Q 60 60 55 80 Z;M 25 80 Q 18 55 28 35 Q 32 20 40 10 Q 48 20 52 35 Q 62 55 55 80 Z;M 25 80 Q 20 60 25 40 Q 30 25 40 15 Q 50 25 55 40 Q 60 60 55 80 Z" 
+                     dur="2s" 
+                     repeatCount="indefinite" />
+          </path>
+          
+          <path d="M 30 75 Q 28 60 32 45 Q 35 35 40 28 Q 45 35 48 45 Q 52 60 50 75 Z" 
+                fill="#FCD34D" 
+                opacity="0.6">
+            <animate attributeName="d" 
+                     values="M 30 75 Q 28 60 32 45 Q 35 35 40 28 Q 45 35 48 45 Q 52 60 50 75 Z;M 30 75 Q 26 58 34 42 Q 36 32 40 25 Q 44 32 46 42 Q 54 58 50 75 Z;M 30 75 Q 28 60 32 45 Q 35 35 40 28 Q 45 35 48 45 Q 52 60 50 75 Z" 
+                     dur="1.5s" 
+                     repeatCount="indefinite" />
+          </path>
+
+          {[...Array(8)].map((_, i) => (
+            <circle key={i} r="1.5" fill="#FFF4E6" opacity="0.9">
+              <animate attributeName="cy" values={`${85 - i * 5};${20 - i * 2};${85 - i * 5}`} dur={`${1.5 + i * 0.2}s`} repeatCount="indefinite" />
+              <animate attributeName="cx" values={`${35 + i * 1.2};${38 + i * 1.2};${35 + i * 1.2}`} dur={`${1.5 + i * 0.2}s`} repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.9;0;0.9" dur={`${1.5 + i * 0.2}s`} repeatCount="indefinite" />
+            </circle>
+          ))}
+        </svg>
+        <div className="absolute text-2xl font-bold text-white z-10" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)' }}>
+          {streak}
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+};
+
+const initData = () => {
+  const habits = [
+    { id: 'h1', name: '🔥 365 Days - 1 Year!', description: 'Ultimate mastery achieved', mode: 'habit', createdDate: '2023-09-25', currentStreak: 365, longestStreak: 365 },
+    { id: 'h2', name: '🌟 200 Days Strong', description: 'Legendary consistency', mode: 'habit', createdDate: '2024-02-10', currentStreak: 200, longestStreak: 200 },
+    { id: 'h3', name: '💎 150 Days Elite', description: 'Elite level reached', mode: 'habit', createdDate: '2024-04-20', currentStreak: 150, longestStreak: 150 },
+    { id: 'h4', name: '💯 100 Day Milestone', description: 'Century club member', mode: 'habit', createdDate: '2024-06-15', currentStreak: 100, longestStreak: 105 },
+    { id: 'h5', name: '🎯 75 Days Solid', description: 'Three quarters to 100', mode: 'habit', createdDate: '2024-07-10', currentStreak: 75, longestStreak: 75 },
+    { id: 'h6', name: '⚡ 50 Day Champion', description: 'Half century complete', mode: 'habit', createdDate: '2024-08-05', currentStreak: 50, longestStreak: 52 },
+    { id: 'h7', name: '🚀 40 Days Rising', description: 'Approaching 50', mode: 'progress', createdDate: '2024-08-15', currentStreak: 40, longestStreak: 40 },
+    { id: 'h8', name: '⭐ 30 Days Strong', description: 'One month achieved', mode: 'habit', createdDate: '2024-08-25', currentStreak: 30, longestStreak: 30 },
+    { id: 'h9', name: '🌈 25 Days Steady', description: 'Nearly one month', mode: 'progress', createdDate: '2024-08-30', currentStreak: 25, longestStreak: 25 },
+    { id: 'h10', name: '✨ 20 Days Rolling', description: 'Building momentum', mode: 'habit', createdDate: '2024-09-04', currentStreak: 20, longestStreak: 20 },
+    { id: 'h11', name: '🎪 15 Days Active', description: 'Two weeks plus', mode: 'progress', createdDate: '2024-09-09', currentStreak: 15, longestStreak: 17 },
+    { id: 'h12', name: '🌟 10 Day Mark', description: 'Double digits!', mode: 'habit', createdDate: '2024-09-14', currentStreak: 10, longestStreak: 15 },
+    { id: 'h13', name: '💪 8 Days Going', description: 'Over a week', mode: 'habit', createdDate: '2024-09-16', currentStreak: 8, longestStreak: 8 },
+    { id: 'h14', name: '🎯 5 Days Fresh', description: 'First milestone reached', mode: 'progress', createdDate: '2024-09-19', currentStreak: 5, longestStreak: 5 },
+    { id: 'h15', name: '🌱 3 Days New', description: 'Just getting started', mode: 'habit', createdDate: '2024-09-21', currentStreak: 3, longestStreak: 3 },
+    { id: 'h16', name: '🔰 1 Day Beginner', description: 'Day one complete!', mode: 'habit', createdDate: '2024-09-23', currentStreak: 1, longestStreak: 1 }
+  ];
+
+  const checkIns = [];
+  const today = new Date();
+  
+  // Generate check-ins for each habit
+  habits.forEach(habit => {
+    for (let i = habit.currentStreak - 1; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+      
+      const noteTemplates = [
+        'Completed my session today. Felt great and pushed myself hard!',
+        'Another day done! Really proud of maintaining this consistency.',
+        'Excellent progress today. Went beyond my usual routine.',
+        'Solid day. Kept up the momentum and stayed committed to my goals.',
+        'Really motivated today. Completed everything with energy to spare!'
+      ];
+      
+      const notes = noteTemplates[Math.floor(Math.random() * noteTemplates.length)];
+      const rating = notes.length > 80 ? Math.floor(Math.random() * 2) + 9 : Math.floor(Math.random() * 3) + 7;
+      
+      checkIns.push({
+        id: generateId(),
+        habitId: habit.id,
+        date: dateStr,
+        notes,
+        completed: true,
+        aiRating: rating,
+        aiFeedback: rating >= 9 
+          ? 'Outstanding effort! Your detailed notes show true commitment. Keep this momentum going!'
+          : 'Great consistency! You\'re building a strong habit. Consider adding more detail to track your progress better.'
+      });
+    }
+  });
+
+  return { habits, checkIns, holidays: [] };
+};
+
+export default function App() {
+  const [view, setView] = useState('dashboard');
+  const [habits, setHabits] = useState([]);
+  const [checkIns, setCheckIns] = useState([]);
+  const [toast, setToast] = useState('');
+  const [showMenu, setShowMenu] = useState(false);
+  const [modal, setModal] = useState(null);
+  const [formData, setFormData] = useState({});
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [fireStyle, setFireStyle] = useState('getsuga');
+  const [hfToken, setHfToken] = useState('');
+  const [hfModel, setHfModel] = useState('meta-llama/Llama-3.2-3B-Instruct');
+  const [isTokenSaved, setIsTokenSaved] = useState(false);
+  const [loadingAI, setLoadingAI] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('streakData');
+    if (stored) {
+      const data = JSON.parse(stored);
+      setHabits(data.habits || []);
+      setCheckIns(data.checkIns || []);
+      setFireStyle(data.fireStyle || 'getsuga');
+    } else {
+      const data = initData();
+      setHabits(data.habits);
+      setCheckIns(data.checkIns);
+    }
+    
+    const savedToken = localStorage.getItem('hf_token');
+    const savedModel = localStorage.getItem('hf_model');
+    if (savedToken) {
+      setHfToken(savedToken);
+      setIsTokenSaved(true);
+    }
+    if (savedModel) {
+      setHfModel(savedModel);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (habits.length > 0) {
+      localStorage.setItem('streakData', JSON.stringify({ habits, checkIns, fireStyle }));
+    }
+  }, [habits, checkIns, fireStyle]);
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 3000);
+  };
+
+  const saveHFToken = () => {
+    if (hfToken.trim()) {
+      localStorage.setItem('hf_token', hfToken);
+      setIsTokenSaved(true);
+      showToast('Hugging Face token saved!');
+    }
+  };
+
+  const saveHFModel = (model) => {
+    setHfModel(model);
+    localStorage.setItem('hf_model', model);
+    showToast('AI model updated!');
+  };
+
+  const generateSmartFeedback = (notes) => {
+    const wordCount = notes.split(/\s+/).length;
+    const hasActionWords = /achieved|completed|finished|accomplished|improved|progressed/i.test(notes);
+    
+    let rating = 6;
+    if (wordCount > 100) rating += 2;
+    if (wordCount > 50) rating += 1;
+    if (hasActionWords) rating += 1;
+    rating = Math.min(rating, 10);
+    
+    const feedbacks = [
+      "Solid effort today! Your consistency is building momentum.",
+      "Great work! Keep maintaining this level of detail.",
+      "Excellent progress! Your dedication is showing."
+    ];
+    
+    const advices = [
+      "Try adding specific metrics or times tomorrow.",
+      "Consider noting what challenged you most.",
+      "Reflect on what made today successful."
+    ];
+    
+    return {
+      rating,
+      feedback: feedbacks[Math.floor(Math.random() * feedbacks.length)],
+      advice: advices[Math.floor(Math.random() * advices.length)]
+    };
+  };
+
+  const getAIFeedback = async (habitName, userNotes, checkInId) => {
+    if (!hfToken) {
+      showToast('Please configure your Hugging Face token in Settings');
+      return;
+    }
+
+    // Validate token format
+    if (!hfToken.startsWith('hf_')) {
+      showToast('❌ Invalid token format. Token should start with "hf_"');
+      return;
+    }
+
+    setLoadingAI(true);
+    const API_URL = `https://api-inference.huggingface.co/models/${hfModel}`;
+    
+    const prompt = `You are a supportive habit coach. Analyze this habit entry and provide encouraging feedback.
+
+Habit: ${habitName}
+Entry: ${userNotes}
+
+Provide a JSON response with:
+1. rating: number 1-10 (rate the effort and detail)
+2. feedback: 2 sentences of encouragement
+3. advice: 1 specific actionable tip
+
+Format: {"rating": 8, "feedback": "...", "advice": "..."}`;
+
+    try {
+      showToast('🤖 Connecting to AI model... (may take 20-30 seconds on first use)');
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout
+      
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${hfToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          inputs: prompt,
+          parameters: {
+            max_new_tokens: 300,
+            temperature: 0.7,
+            return_full_text: false,
+            top_p: 0.95,
+            do_sample: true
+          },
+          options: {
+            wait_for_model: true,
+            use_cache: false
+          }
+        }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      // Check for specific error responses
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API Error Response:', errorText);
+        
+        if (response.status === 401 || response.status === 403) {
+          throw new Error('Invalid token');
+        } else if (response.status === 429) {
+          throw new Error('Rate limit');
+        } else if (response.status === 503) {
+          throw new Error('Model loading');
+        } else if (response.status === 0 || response.type === 'opaque') {
+          throw new Error('CORS blocked');
+        }
+        throw new Error(`API Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('API Response:', data);
+      
+      // Handle error responses from API
+      if (data.error) {
+        console.error('API returned error:', data.error);
+        if (data.error.includes('loading')) {
+          throw new Error('Model loading');
+        } else if (data.error.includes('rate')) {
+          throw new Error('Rate limit');
+        }
+        throw new Error('API error');
+      }
+      
+      let result;
+      
+      if (Array.isArray(data) && data[0]?.generated_text) {
+        let aiText = data[0].generated_text;
+        
+        const jsonMatch = aiText.match(/\{[^{}]*"rating"[^{}]*"feedback"[^{}]*"advice"[^{}]*\}/);
+        
+        if (jsonMatch) {
+          try {
+            const parsed = JSON.parse(jsonMatch[0]);
+            result = {
+              rating: Math.min(Math.max(parseInt(parsed.rating) || 7, 1), 10),
+              feedback: parsed.feedback || "Great work on your consistency!",
+              advice: parsed.advice || "Keep tracking your progress daily.",
+              analyzedAt: new Date().toISOString()
+            };
+          } catch (e) {
+            console.error('JSON parse error:', e);
+            throw new Error('Parse failed');
+          }
+        } else {
+          const ratingMatch = aiText.match(/rating["\s:]+(\d+)/i);
+          const feedbackMatch = aiText.match(/feedback["\s:]+([^"]+)/i);
+          const adviceMatch = aiText.match(/advice["\s:]+([^"]+)/i);
+          
+          result = {
+            rating: ratingMatch ? Math.min(Math.max(parseInt(ratingMatch[1]), 1), 10) : 7,
+            feedback: feedbackMatch ? feedbackMatch[1].trim().slice(0, 200) : "Excellent work! Your dedication is showing through your consistent tracking.",
+            advice: adviceMatch ? adviceMatch[1].trim().slice(0, 150) : "Keep up the great work and stay consistent with your daily entries.",
+            analyzedAt: new Date().toISOString()
+          };
+        }
+      } else {
+        throw new Error('Unexpected response format');
+      }
+
+      setCheckIns(checkIns.map(c => 
+        c.id === checkInId 
+          ? { ...c, aiRating: result.rating, aiFeedback: result.feedback, aiAdvice: result.advice, aiAnalyzedAt: result.analyzedAt }
+          : c
+      ));
+      
+      showToast('✨ AI feedback generated successfully!');
+      
+    } catch (error) {
+      console.error("AI API Error:", error);
+      
+      if (error.name === 'AbortError') {
+        showToast('⏰ Request timeout. Model took too long. Using smart analysis.');
+      } else if (error.message === 'Invalid token') {
+        showToast('❌ Invalid token. Check Settings - token must start with "hf_"');
+      } else if (error.message === 'Rate limit') {
+        showToast('⏰ API limit reached. Wait 1 minute or using smart analysis.');
+      } else if (error.message === 'Model loading') {
+        showToast('🔄 Model still loading. Wait 30 seconds and try again, or using smart analysis now.');
+      } else if (error.message === 'CORS blocked') {
+        showToast('🚫 CORS Error: Artifacts have API restrictions. Using smart analysis instead. (Deploy to real website for full API access)');
+      } else {
+        showToast('⚠️ API unavailable. Using smart analysis instead.');
+      }
+      
+      // Always provide fallback
+      const fallback = {
+        ...generateSmartFeedback(userNotes),
+        analyzedAt: new Date().toISOString()
+      };
+      setCheckIns(checkIns.map(c => 
+        c.id === checkInId 
+          ? { ...c, aiRating: fallback.rating, aiFeedback: fallback.feedback, aiAdvice: fallback.advice, aiAnalyzedAt: fallback.analyzedAt }
+          : c
+      ));
+      
+    } finally {
+      setLoadingAI(false);
+    }
+  };
+
+  const addHabit = () => {
+    if (!formData.name) return;
+    const newHabit = {
+      id: generateId(),
+      name: formData.name,
+      description: formData.description || '',
+      mode: 'habit',
+      createdDate: getToday(),
+      currentStreak: 0,
+      longestStreak: 0
+    };
+    setHabits([...habits, newHabit]);
+    setModal(null);
+    setFormData({});
+    showToast('Habit added!');
+  };
+
+  const updateHabit = () => {
+    if (!formData.name) return;
+    setHabits(habits.map(h => h.id === formData.id ? { ...h, name: formData.name, description: formData.description } : h));
+    setModal(null);
+    setFormData({});
+    showToast('Habit updated!');
+  };
+
+  const deleteHabit = (id) => {
+    setHabits(habits.filter(h => h.id !== id));
+    setCheckIns(checkIns.filter(c => c.habitId !== id));
+    setModal(null);
+    showToast('Habit deleted!');
+  };
+
+  const checkIn = () => {
+    if (!formData.notes || formData.notes.length < 10) return;
+    const today = getToday();
+    const habitId = formData.habitId;
+    
+    const rating = formData.notes.length > 100 ? 9 : formData.notes.length > 50 ? 8 : 7;
+    const newCheckIn = {
+      id: generateId(),
+      habitId,
+      date: today,
+      notes: formData.notes,
+      completed: true,
+      aiRating: rating,
+      aiFeedback: rating >= 9 
+        ? 'Outstanding effort! Your detailed notes show true commitment. Keep this momentum going!'
+        : rating >= 8
+        ? 'Great work! Your consistency and detail are impressive. Keep up this level of engagement.'
+        : 'Good progress! You\'re building a strong foundation. Consider adding more specific details.',
+      aiAdvice: rating >= 9
+        ? 'To maintain this momentum, try setting a new challenge or helping others build similar habits.'
+        : rating >= 8
+        ? 'Tomorrow, try to include specific metrics, times, or measurements to track your improvement.'
+        : 'Reflect on what made today successful and try to replicate those conditions tomorrow.',
+      aiAnalyzedAt: new Date().toISOString()
+    };
+
+    setCheckIns([...checkIns, newCheckIn]);
+
+    const habit = habits.find(h => h.id === habitId);
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    
+    const hasYesterday = checkIns.some(c => c.habitId === habitId && c.date === yesterdayStr);
+    const newStreak = hasYesterday ? habit.currentStreak + 1 : 1;
+
+    setHabits(habits.map(h => h.id === habitId ? {
+      ...h,
+      currentStreak: newStreak,
+      longestStreak: Math.max(h.longestStreak, newStreak)
+    } : h));
+
+    setModal(null);
+    setFormData({});
+    showToast(`Checked in! Streak: ${newStreak} 🔥`);
+  };
+
+  const hasCheckedIn = (habitId) => {
+    return checkIns.some(c => c.habitId === habitId && c.date === getToday());
+  };
+
+  const getCheckInsForDate = (date) => {
+    return checkIns.filter(c => c.date === date);
+  };
+
+  const getDaysInMonth = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+    
+    return { daysInMonth, startingDayOfWeek, year, month };
+  };
+
+  const getDateString = (day) => {
+    const { year, month } = getDaysInMonth();
+    const date = new Date(year, month, day);
+    return date.toISOString().split('T')[0];
+  };
+
+  const getActivityLevel = (date) => {
+    const dayCheckIns = getCheckInsForDate(date);
+    if (dayCheckIns.length === 0) return 'none';
+    const avgRating = dayCheckIns.reduce((sum, c) => sum + c.aiRating, 0) / dayCheckIns.length;
+    if (avgRating >= 9) return 'high';
+    if (avgRating >= 7) return 'medium';
+    return 'low';
+  };
+
+  if (habits.length === 0) {
+    return (
+      <div className="flex h-screen bg-gray-900 items-center justify-center p-8">
+        <div className="text-center">
+          <Trophy size={60} className="text-yellow-500 mb-6 mx-auto" />
+          <h2 className="text-3xl font-bold text-white mb-4">Start Your Journey</h2>
+          <p className="text-xl text-gray-300 mb-8 italic">"The secret of getting ahead is getting started."</p>
+          <button
+            onClick={() => {
+              setModal('add');
+              setFormData({});
+            }}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-lg flex items-center gap-2 mx-auto"
+          >
+            <Plus size={24} />
+            Add Your First Habit
+          </button>
+        </div>
+
+        {modal === 'add' && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 p-4">
+            <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold text-white">Add Habit</h2>
+                <button onClick={() => setModal(null)} className="text-gray-400">
+                  <X size={24} />
+                </button>
+              </div>
+              <input
+                value={formData.name || ''}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="Habit name"
+                className="w-full bg-gray-700 text-white rounded px-4 py-2 mb-4"
+              />
+              <textarea
+                value={formData.description || ''}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="Description"
+                className="w-full bg-gray-700 text-white rounded px-4 py-2 mb-4"
+                rows="3"
+              />
+              <button
+                onClick={addHabit}
+                className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded"
+              >
+                Add Habit
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col md:flex-row h-screen bg-gray-900">
+      <style>{`
+        @keyframes slide-up {
+          from { transform: translateY(100px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        .animate-slide-up { animation: slide-up 0.3s ease-out; }
+      `}</style>
+
+      <div className="md:hidden bg-black border-b border-gray-800 p-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Flame size={24} className="text-orange-500" />
+          <h1 className="text-lg font-bold text-white">Streak Tracker</h1>
+        </div>
+        <button onClick={() => setShowMenu(!showMenu)} className="text-white">
+          {showMenu ? <X size={24} /> : <div className="space-y-1"><div className="w-6 h-0.5 bg-white"></div><div className="w-6 h-0.5 bg-white"></div><div className="w-6 h-0.5 bg-white"></div></div>}
+        </button>
+      </div>
+
+      {showMenu && (
+        <div className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setShowMenu(false)}>
+          <div className="bg-black w-64 h-full" onClick={e => e.stopPropagation()}>
+            <div className="p-6 border-b border-gray-800">
+              <Flame size={32} className="text-orange-500 mb-2" />
+              <h1 className="text-xl font-bold text-white">Streak Tracker</h1>
+            </div>
+            <nav className="p-4">
+              <button onClick={() => { setView('dashboard'); setShowMenu(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-2 ${view === 'dashboard' ? 'bg-blue-600 text-white' : 'text-gray-400'}`}>
+                <Home size={20} />
+                <span>Dashboard</span>
+              </button>
+              <button onClick={() => { setView('habits'); setShowMenu(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-2 ${view === 'habits' ? 'bg-blue-600 text-white' : 'text-gray-400'}`}>
+                <Target size={20} />
+                <span>All Habits</span>
+              </button>
+              <button onClick={() => { setView('settings'); setShowMenu(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-2 ${view === 'settings' ? 'bg-blue-600 text-white' : 'text-gray-400'}`}>
+                <Settings size={20} />
+                <span>Settings</span>
+              </button>
+            </nav>
+          </div>
+        </div>
+      )}
+
+      <div className="hidden md:flex md:w-64 bg-black border-r border-gray-800 flex-col">
+        <div className="p-6 border-b border-gray-800">
+          <Flame size={32} className="text-orange-500 mb-2" />
+          <h1 className="text-xl font-bold text-white">Streak Tracker</h1>
+        </div>
+        <nav className="flex-1 p-4">
+          <button onClick={() => setView('dashboard')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-2 ${view === 'dashboard' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:bg-gray-800'}`}>
+            <Home size={20} />
+            <span>Dashboard</span>
+          </button>
+          <button onClick={() => setView('habits')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-2 ${view === 'habits' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:bg-gray-800'}`}>
+            <Target size={20} />
+            <span>All Habits</span>
+          </button>
+          <button onClick={() => setView('settings')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-2 ${view === 'settings' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:bg-gray-800'}`}>
+            <Settings size={20} />
+            <span>Settings</span>
+          </button>
+        </nav>
+      </div>
+
+      <div className="flex-1 p-4 md:p-8 overflow-auto">
+        {view === 'dashboard' && (
+          <div>
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-3xl font-bold text-white">Dashboard</h1>
+              <button
+                onClick={() => {
+                  setModal('add');
+                  setFormData({});
+                }}
+                className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2"
+              >
+                <Plus size={20} /> Add
+              </button>
+            </div>
+
+            <div className="bg-gray-800 rounded-lg p-4 md:p-6 border border-gray-700 mb-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold text-white">
+                  {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                </h2>
+                <div className="text-sm text-gray-400">Click a day to see details</div>
+              </div>
+              
+              <div className="grid grid-cols-7 gap-2">
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                  <div key={day} className="text-center text-gray-400 font-semibold text-sm py-2">
+                    {day}
+                  </div>
+                ))}
+                
+                {(() => {
+                  const { daysInMonth, startingDayOfWeek } = getDaysInMonth();
+                  const days = [];
+                  
+                  for (let i = 0; i < startingDayOfWeek; i++) {
+                    days.push(<div key={`empty-${i}`} className="aspect-square"></div>);
+                  }
+                  
+                  for (let day = 1; day <= daysInMonth; day++) {
+                    const dateStr = getDateString(day);
+                    const activityLevel = getActivityLevel(dateStr);
+                    const isToday = dateStr === getToday();
+                    const dayCheckIns = getCheckInsForDate(dateStr);
+                    
+                    days.push(
+                      <button
+                        key={day}
+                        onClick={() => {
+                          if (dayCheckIns.length > 0) {
+                            setSelectedDate(dateStr);
+                            setModal('dayDetail');
+                          }
+                        }}
+                        className={`aspect-square rounded-lg flex flex-col items-center justify-center text-sm transition-all ${
+                          isToday ? 'ring-2 ring-blue-500' : ''
+                        } ${
+                          activityLevel === 'high' ? 'bg-green-600 hover:bg-green-500 text-white cursor-pointer' :
+                          activityLevel === 'medium' ? 'bg-green-700 hover:bg-green-600 text-white cursor-pointer' :
+                          activityLevel === 'low' ? 'bg-green-800 hover:bg-green-700 text-white cursor-pointer' :
+                          'bg-gray-700 text-gray-400'
+                        }`}
+                      >
+                        <div className="font-semibold">{day}</div>
+                        {dayCheckIns.length > 0 && (
+                          <div className="text-xs mt-1">{dayCheckIns.length} ✓</div>
+                        )}
+                      </button>
+                    );
+                  }
+                  
+                  return days;
+                })()}
+              </div>
+
+              <div className="flex items-center justify-center gap-6 mt-6 text-sm flex-wrap">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded bg-green-600"></div>
+                  <span className="text-gray-300">Excellent (9-10)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded bg-green-700"></div>
+                  <span className="text-gray-300">Good (7-8)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded bg-green-800"></div>
+                  <span className="text-gray-300">Fair (5-6)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded bg-gray-700"></div>
+                  <span className="text-gray-300">No activity</span>
+                </div>
+              </div>
+            </div>
+
+            <h2 className="text-2xl font-bold text-white mb-4">Your Habits</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {habits.map(habit => (
+                <div key={habit.id} className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold text-white mb-1">{habit.name}</h3>
+                      <p className="text-sm text-gray-400">{habit.description}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          setModal('edit');
+                          setFormData({ id: habit.id, name: habit.name, description: habit.description });
+                        }}
+                        className="text-blue-400 p-1"
+                      >
+                        <Edit2 size={18} />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setModal('delete');
+                          setFormData({ id: habit.id, name: habit.name });
+                        }}
+                        className="text-red-400 p-1"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex justify-center my-6">
+                    <FireAnimation streak={habit.currentStreak} style={fireStyle} />
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (!hasCheckedIn(habit.id)) {
+                        setModal('checkin');
+                        setFormData({ habitId: habit.id, notes: '' });
+                      }
+                    }}
+                    className={`w-full font-bold py-3 rounded-lg flex items-center justify-center gap-2 ${
+                      hasCheckedIn(habit.id) ? 'bg-gray-700 text-gray-400' : 'bg-green-600 hover:bg-green-700 text-white'
+                    }`}
+                    disabled={hasCheckedIn(habit.id)}
+                  >
+                    <Check size={20} />
+                    {hasCheckedIn(habit.id) ? 'Checked In' : 'Check In'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {view === 'habits' && (
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-6">All Habits</h1>
+            <div className="space-y-4">
+              {habits.map(habit => (
+                <div key={habit.id} className="bg-gray-800 rounded-lg p-6 border border-gray-700 flex items-center justify-between">
+                  <div className="flex items-center gap-6">
+                    <FireAnimation streak={habit.currentStreak} style={fireStyle} />
+                    <div>
+                      <h3 className="text-xl font-bold text-white">{habit.name}</h3>
+                      <p className="text-gray-400">{habit.description}</p>
+                      <div className="flex gap-4 mt-2 text-sm">
+                        <span className="text-green-400">Best: {habit.longestStreak} days</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        setModal('edit');
+                        setFormData({ id: habit.id, name: habit.name, description: habit.description });
+                      }}
+                      className="text-blue-400 p-2"
+                    >
+                      <Edit2 size={20} />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setModal('delete');
+                        setFormData({ id: habit.id, name: habit.name });
+                      }}
+                      className="text-red-400 p-2"
+                    >
+                      <Trash2 size={20} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {view === 'settings' && (
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-6">Settings</h1>
+            
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700 mb-6">
+              <h2 className="text-xl font-bold text-white mb-4">AI Configuration</h2>
+              <p className="text-gray-400 mb-4 text-sm">Configure AI feedback for your habits</p>
+              
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-white font-semibold">Hugging Face Token</label>
+                  {isTokenSaved ? (
+                    <span className="text-green-500 flex items-center gap-1 text-sm">
+                      <Check size={16} /> Configured
+                    </span>
+                  ) : (
+                    <span className="text-red-500 flex items-center gap-1 text-sm">
+                      <X size={16} /> Not configured
+                    </span>
+                  )}
+                </div>
+                <input
+                  type="password"
+                  value={hfToken}
+                  onChange={(e) => setHfToken(e.target.value)}
+                  placeholder="Enter your Hugging Face token (hf_...)"
+                  className="w-full bg-gray-700 text-white rounded px-4 py-2 mb-2"
+                />
+                <div className="bg-yellow-900 bg-opacity-30 border border-yellow-700 rounded p-3 mb-3 text-sm text-yellow-200">
+                  <strong>⚠️ Note:</strong> API calls may be blocked in artifacts due to CORS restrictions. For full AI functionality, deploy this to a real website or use the smart analysis fallback.
+                </div>
+                <div className="flex items-center justify-between">
+                  <a 
+                    href="https://huggingface.co/settings/tokens" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-blue-400 hover:text-blue-300 text-sm"
+                  >
+                    Get free token at huggingface.co →
+                  </a>
+                  <button
+                    onClick={saveHFToken}
+                    className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                  >
+                    Save Token
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-white font-semibold block mb-2">AI Model</label>
+                <select
+                  value={hfModel}
+                  onChange={(e) => saveHFModel(e.target.value)}
+                  className="w-full bg-gray-700 text-white rounded px-4 py-2"
+                >
+                  <option value="meta-llama/Llama-3.2-3B-Instruct">Llama 3.2 3B (Recommended)</option>
+                  <option value="mistralai/Mistral-7B-Instruct-v0.2">Mistral 7B Instruct</option>
+                  <option value="microsoft/Phi-3-mini-4k-instruct">Phi-3 Mini 4K</option>
+                </select>
+                <p className="text-gray-400 text-xs mt-2">Choose the AI model for generating feedback</p>
+              </div>
+            </div>
+
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700 mb-6">
+              <h2 className="text-xl font-bold text-white mb-4">Fire Animation Style</h2>
+              <p className="text-gray-400 mb-4 text-sm">Choose how your streak fire looks</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <button
+                  onClick={() => setFireStyle('getsuga')}
+                  className={`p-4 rounded-lg border-2 transition-all ${
+                    fireStyle === 'getsuga' 
+                      ? 'border-blue-500 bg-blue-900 bg-opacity-20' 
+                      : 'border-gray-600 bg-gray-700 hover:border-gray-500'
+                  }`}
+                >
+                  <div className="flex flex-col items-center">
+                    <FireAnimation streak={15} style="getsuga" />
+                    <div className="mt-2 text-white font-semibold">Getsuga Tenshō</div>
+                    <div className="text-xs text-gray-400">Crescent moon wave</div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => setFireStyle('demonslayer')}
+                  className={`p-4 rounded-lg border-2 transition-all ${
+                    fireStyle === 'demonslayer' 
+                      ? 'border-orange-500 bg-orange-900 bg-opacity-20' 
+                      : 'border-gray-600 bg-gray-700 hover:border-gray-500'
+                  }`}
+                >
+                  <div className="flex flex-col items-center">
+                    <FireAnimation streak={15} style="demonslayer" />
+                    <div className="mt-2 text-white font-semibold">Demon Slayer</div>
+                    <div className="text-xs text-gray-400">Sharp & dynamic</div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => setFireStyle('anime')}
+                  className={`p-4 rounded-lg border-2 transition-all ${
+                    fireStyle === 'anime' 
+                      ? 'border-purple-500 bg-purple-900 bg-opacity-20' 
+                      : 'border-gray-600 bg-gray-700 hover:border-gray-500'
+                  }`}
+                >
+                  <div className="flex flex-col items-center">
+                    <FireAnimation streak={15} style="anime" />
+                    <div className="mt-2 text-white font-semibold">Anime</div>
+                    <div className="text-xs text-gray-400">Vibrant & energetic</div>
+                  </div>
+                </button>
+                
+                <button
+                  onClick={() => setFireStyle('simple')}
+                  className={`p-4 rounded-lg border-2 transition-all ${
+                    fireStyle === 'simple' 
+                      ? 'border-gray-500 bg-gray-900 bg-opacity-20' 
+                      : 'border-gray-600 bg-gray-700 hover:border-gray-500'
+                  }`}
+                >
+                  <div className="flex flex-col items-center">
+                    <FireAnimation streak={15} style="simple" />
+                    <div className="mt-2 text-white font-semibold">Simple</div>
+                    <div className="text-xs text-gray-400">Clean & minimal</div>
+                  </div>
+                </button>
+                
+                <button
+                  onClick={() => setFireStyle('realistic')}
+                  className={`p-4 rounded-lg border-2 transition-all ${
+                    fireStyle === 'realistic' 
+                      ? 'border-red-500 bg-red-900 bg-opacity-20' 
+                      : 'border-gray-600 bg-gray-700 hover:border-gray-500'
+                  }`}
+                >
+                  <div className="flex flex-col items-center">
+                    <FireAnimation streak={15} style="realistic" />
+                    <div className="mt-2 text-white font-semibold">Realistic</div>
+                    <div className="text-xs text-gray-400">Detailed & natural</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+              <h2 className="text-xl font-bold text-white mb-4">Data Management</h2>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => {
+                    if (window.confirm('Delete all data? This cannot be undone!')) {
+                      localStorage.removeItem('streakData');
+                      setHabits([]);
+                      setCheckIns([]);
+                      showToast('Data cleared!');
+                    }
+                  }}
+                  className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg"
+                >
+                  Clear All
+                </button>
+                <button
+                  onClick={() => {
+                    const data = { habits, checkIns, fireStyle };
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `backup-${getToday()}.json`;
+                    a.click();
+                    showToast('Exported!');
+                  }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg"
+                >
+                  Export
+                </button>
+              </div>
+              <div className="mt-6 pt-6 border-t border-gray-700">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gray-700 rounded p-3">
+                    <div className="text-gray-400 text-xs">Total Habits</div>
+                    <div className="text-2xl font-bold text-white">{habits.length}</div>
+                  </div>
+                  <div className="bg-gray-700 rounded p-3">
+                    <div className="text-gray-400 text-xs">Check-ins</div>
+                    <div className="text-2xl font-bold text-white">{checkIns.length}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {modal === 'add' && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 p-4">
+          <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-white">Add Habit</h2>
+              <button onClick={() => setModal(null)} className="text-gray-400">
+                <X size={24} />
+              </button>
+            </div>
+            <input
+              value={formData.name || ''}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="Habit name"
+              className="w-full bg-gray-700 text-white rounded px-4 py-2 mb-4"
+            />
+            <textarea
+              value={formData.description || ''}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Description"
+              className="w-full bg-gray-700 text-white rounded px-4 py-2 mb-4"
+              rows="3"
+            />
+            <button onClick={addHabit} className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded">
+              Add Habit
+            </button>
+          </div>
+        </div>
+      )}
+
+      {modal === 'edit' && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 p-4">
+          <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-white">Edit Habit</h2>
+              <button onClick={() => setModal(null)} className="text-gray-400">
+                <X size={24} />
+              </button>
+            </div>
+            <input
+              value={formData.name || ''}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="Habit name"
+              className="w-full bg-gray-700 text-white rounded px-4 py-2 mb-4"
+            />
+            <textarea
+              value={formData.description || ''}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Description"
+              className="w-full bg-gray-700 text-white rounded px-4 py-2 mb-4"
+              rows="3"
+            />
+            <button onClick={updateHabit} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded">
+              Update
+            </button>
+          </div>
+        </div>
+      )}
+
+      {modal === 'delete' && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 p-4">
+          <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-2xl font-bold text-white mb-4">Delete Habit?</h2>
+            <p className="text-gray-300 mb-6">Delete "{formData.name}"? All data will be lost.</p>
+            <div className="flex gap-3">
+              <button onClick={() => setModal(null)} className="flex-1 bg-gray-700 text-white font-bold py-3 rounded">
+                Cancel
+              </button>
+              <button onClick={() => deleteHabit(formData.id)} className="flex-1 bg-red-600 text-white font-bold py-3 rounded">
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {modal === 'checkin' && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 p-4">
+          <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-white">Check In</h2>
+              <button onClick={() => setModal(null)} className="text-gray-400">
+                <X size={24} />
+              </button>
+            </div>
+            <textarea
+              value={formData.notes || ''}
+              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              placeholder="What did you accomplish? (min 10 chars)"
+              className="w-full bg-gray-700 text-white rounded px-4 py-2 mb-4"
+              rows="4"
+            />
+            <button
+              onClick={checkIn}
+              disabled={(formData.notes || '').length < 10}
+              className={`w-full font-bold py-3 rounded ${(formData.notes || '').length >= 10 ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-600 text-gray-400'}`}
+            >
+              Check In
+            </button>
+          </div>
+        </div>
+      )}
+
+      {modal === 'dayDetail' && selectedDate && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 p-4">
+          <div className="bg-gray-800 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-white">
+                {new Date(selectedDate).toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
+              </h2>
+              <button onClick={() => setModal(null)} className="text-gray-400 hover:text-white">
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              {getCheckInsForDate(selectedDate).map(checkIn => {
+                const habit = habits.find(h => h.id === checkIn.habitId);
+                return (
+                  <div key={checkIn.id} className="bg-gray-700 rounded-lg p-5 border border-gray-600">
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <h3 className="text-xl font-bold text-white mb-1">{habit?.name}</h3>
+                        <p className="text-sm text-gray-400">{habit?.description}</p>
+                      </div>
+                      <div className="bg-purple-600 text-white px-4 py-2 rounded-full font-bold text-lg">
+                        {checkIn.aiRating}/10
+                      </div>
+                    </div>
+
+                    <div className="mb-4">
+                      <h4 className="text-sm font-semibold text-gray-300 mb-2">📝 Your Notes</h4>
+                      <p className="text-white bg-gray-800 rounded p-4">{checkIn.notes}</p>
+                    </div>
+
+                    {checkIn.aiRating && checkIn.aiFeedback ? (
+                      <div className="bg-gradient-to-r from-purple-900 to-blue-900 rounded-lg p-4 mb-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="text-sm font-semibold text-white flex items-center gap-2">
+                            <span className="text-xl">🤖</span> AI Analysis
+                          </h4>
+                          <button
+                            onClick={() => getAIFeedback(habit?.name, checkIn.notes, checkIn.id)}
+                            disabled={loadingAI}
+                            className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded"
+                          >
+                            {loadingAI ? '⏳ Loading...' : '🔄 Refresh'}
+                          </button>
+                        </div>
+                        
+                        <div className="mb-3">
+                          <div className="text-xs text-purple-200 mb-1">Performance Rating</div>
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 bg-gray-900 bg-opacity-30 rounded-full h-3">
+                              <div 
+                                className={`h-3 rounded-full transition-all ${
+                                  checkIn.aiRating >= 8 ? 'bg-gradient-to-r from-green-400 to-green-500' :
+                                  checkIn.aiRating >= 6 ? 'bg-gradient-to-r from-yellow-400 to-yellow-500' :
+                                  'bg-gradient-to-r from-red-400 to-red-500'
+                                }`}
+                                style={{ width: `${checkIn.aiRating * 10}%` }}
+                              ></div>
+                            </div>
+                            <div className={`font-bold px-2 py-1 rounded text-sm ${
+                              checkIn.aiRating >= 8 ? 'bg-green-600 text-white' :
+                              checkIn.aiRating >= 6 ? 'bg-yellow-600 text-white' :
+                              'bg-red-600 text-white'
+                            }`}>
+                              {checkIn.aiRating}/10
+                            </div>
+                          </div>
+                          <div className="mt-1 flex gap-1">
+                            {[...Array(10)].map((_, i) => (
+                              <span key={i} className={i < checkIn.aiRating ? 'text-yellow-400' : 'text-gray-600'}>
+                                ★
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="mb-3 bg-blue-900 bg-opacity-30 rounded p-3">
+                          <div className="text-xs text-blue-200 mb-1">💬 Feedback</div>
+                          <p className="text-white text-sm">{checkIn.aiFeedback}</p>
+                        </div>
+
+                        {checkIn.aiAdvice && (
+                          <div className="bg-green-900 bg-opacity-30 rounded p-3">
+                            <div className="text-xs text-green-200 mb-1 flex items-center gap-1">
+                              💡 Advice
+                            </div>
+                            <p className="text-white text-sm">{checkIn.aiAdvice}</p>
+                          </div>
+                        )}
+
+                        {checkIn.aiAnalyzedAt && (
+                          <div className="text-xs text-purple-300 mt-3">
+                            AI analyzed on {new Date(checkIn.aiAnalyzedAt).toLocaleString()}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => getAIFeedback(habit?.name, checkIn.notes, checkIn.id)}
+                        disabled={loadingAI || !isTokenSaved}
+                        className={`w-full font-bold py-3 rounded-lg flex items-center justify-center gap-2 mb-4 ${
+                          loadingAI || !isTokenSaved
+                            ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                            : 'bg-blue-600 hover:bg-blue-700 text-white'
+                        }`}
+                        title={!isTokenSaved ? 'Configure token in Settings' : ''}
+                      >
+                        {loadingAI ? (
+                          <>
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                            <span>Analyzing...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>🤖</span>
+                            <span>Get AI Feedback</span>
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {getCheckInsForDate(selectedDate).length === 0 && (
+              <div className="text-center py-12 text-gray-400">
+                <div className="text-6xl mb-4">📅</div>
+                <p className="text-lg">No activity recorded for this day</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {toast && (
+        <div className="fixed bottom-6 right-6 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-slide-up">
+          {toast}
+        </div>
+      )}
+    </div>
+  );
+}
