@@ -3,49 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Streak Tracker - Build lasting habits with AI-powered insights, beautiful fire animations, and comprehensive analytics">
   <title>Streak Tracker - Habit & Goal Tracker</title>
   
-  <!-- React and ReactDOM from CDN -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- React and ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.min.js"></script>
   
-  <!-- Babel Standalone for JSX -->
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Babel Standalone -->
+  <script src="https://unpkg.com/@babel/standalone@7.23.5/babel.min.js"></script>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Recharts -->
-  <script src="https://unpkg.com/recharts@2.5.0/dist/Recharts.js"></script>
-  
-  <!-- Lucide React Icons -->
-  <script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide-react.js"></script>
-  
   <style>
+    body { 
+      margin: 0; 
+      padding: 0; 
+      font-family: system-ui, -apple-system, sans-serif; 
+    }
+    #root { 
+      width: 100%; 
+      height: 100vh; 
+    }
     @keyframes slide-up {
-      from {
-        transform: translateY(100px);
-        opacity: 0;
-      }
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
+      from { transform: translateY(100px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
-    .animate-slide-up {
-      animation: slide-up 0.3s ease-out;
-    }
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-    #root {
-      width: 100%;
-      height: 100vh;
+    .animate-slide-up { 
+      animation: slide-up 0.3s ease-out; 
     }
   </style>
 </head>
@@ -54,346 +39,79 @@
   
   <script type="text/babel">
     const { useState, useEffect } = React;
-    const { 
-      Flame, Plus, TrendingUp, Settings, Home, X, Check, 
-      Edit2, Trophy, Target, Trash2 
-    } = lucide;
-    const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } = Recharts;
-
-    const getToday = () => new Date().toISOString().split('T')[0];
-    const generateId = () => Math.random().toString(36).substr(2, 9);
-
-    const FireAnimation = ({ streak, style = 'getsuga' }) => {
-      let color = '#FB923C';
-      let secondaryColor = '#F97316';
-      if (streak >= 100) {
-        color = '#3B0764';
-        secondaryColor = '#7C3AED';
-      } else if (streak >= 50) {
-        color = '#581C87';
-        secondaryColor = '#A855F7';
-      } else if (streak >= 10) {
-        color = '#C4B5FD';
-        secondaryColor = '#8B5CF6';
-      } else if (streak >= 5) {
-        color = '#A855F7';
-        secondaryColor = '#C084FC';
-      }
-
-      if (style === 'getsuga') {
-        return (
-          <div className="relative flex items-center justify-center w-20 h-24">
-            <svg width="80" height="100" className="absolute" style={{ filter: 'drop-shadow(0 0 15px rgba(59, 130, 246, 0.8))' }}>
-              <defs>
-                <linearGradient id={`getsugatGrad-${streak}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.9" />
-                  <stop offset="50%" stopColor={color} stopOpacity="0.8" />
-                  <stop offset="100%" stopColor="#1E3A8A" stopOpacity="0.3" />
-                </linearGradient>
-                <linearGradient id={`getsugaCore-${streak}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#DBEAFE" />
-                  <stop offset="100%" stopColor="#60A5FA" />
-                </linearGradient>
-                <filter id={`getsugaGlow-${streak}`}>
-                  <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
-                  <feMerge>
-                    <feMergeNode in="coloredBlur"/>
-                    <feMergeNode in="coloredBlur"/>
-                    <feMergeNode in="SourceGraphic"/>
-                  </feMerge>
-                </filter>
-              </defs>
-              
-              <path d="M 15 75 Q 10 55 15 35 Q 20 20 30 10 L 40 5 L 50 10 Q 60 20 65 35 Q 70 55 65 75 L 40 85 Z" 
-                    fill={`url(#getsugatGrad-${streak})`}
-                    stroke="#3B82F6"
-                    strokeWidth="1"
-                    opacity="0.85"
-                    filter={`url(#getsugaGlow-${streak})`}>
-                <animate attributeName="d" 
-                         values="M 15 75 Q 10 55 15 35 Q 20 20 30 10 L 40 5 L 50 10 Q 60 20 65 35 Q 70 55 65 75 L 40 85 Z;M 15 75 Q 8 52 18 32 Q 22 18 32 8 L 40 3 L 48 8 Q 58 18 62 32 Q 72 52 65 75 L 40 85 Z;M 15 75 Q 10 55 15 35 Q 20 20 30 10 L 40 5 L 50 10 Q 60 20 65 35 Q 70 55 65 75 L 40 85 Z" 
-                         dur="2s" 
-                         repeatCount="indefinite" />
-              </path>
-
-              <path d="M 25 70 Q 22 55 27 40 Q 30 30 35 22 L 40 18 L 45 22 Q 50 30 53 40 Q 58 55 55 70 L 40 75 Z" 
-                    fill={`url(#getsugaCore-${streak})`}
-                    opacity="0.7">
-                <animate attributeName="d" 
-                         values="M 25 70 Q 22 55 27 40 Q 30 30 35 22 L 40 18 L 45 22 Q 50 30 53 40 Q 58 55 55 70 L 40 75 Z;M 25 70 Q 20 52 29 38 Q 32 28 36 20 L 40 16 L 44 20 Q 48 28 51 38 Q 60 52 55 70 L 40 75 Z;M 25 70 Q 22 55 27 40 Q 30 30 35 22 L 40 18 L 45 22 Q 50 30 53 40 Q 58 55 55 70 L 40 75 Z" 
-                         dur="1.8s" 
-                         repeatCount="indefinite" />
-              </path>
-
-              {[...Array(10)].map((_, i) => {
-                const x = 25 + (i % 5) * 7;
-                const delay = i * 0.15;
-                return (
-                  <rect 
-                    key={`particle-${i}`}
-                    x={x} 
-                    y="85"
-                    width="2" 
-                    height="6" 
-                    fill="#3B82F6" 
-                    opacity="0">
-                    <animate 
-                      attributeName="y" 
-                      values="85;15;85" 
-                      dur="2s" 
-                      repeatCount="indefinite"
-                      begin={`${delay}s`} />
-                    <animate 
-                      attributeName="opacity" 
-                      values="0;0.9;0" 
-                      dur="2s" 
-                      repeatCount="indefinite"
-                      begin={`${delay}s`} />
-                    <animate 
-                      attributeName="height" 
-                      values="6;10;6" 
-                      dur="2s" 
-                      repeatCount="indefinite"
-                      begin={`${delay}s`} />
-                  </rect>
-                );
-              })}
-
-              <ellipse cx="40" cy="50" rx="6" ry="12" fill="#DBEAFE" opacity="0.5">
-                <animate attributeName="opacity" values="0.5;0.8;0.5" dur="1.5s" repeatCount="indefinite" />
-              </ellipse>
-            </svg>
-            
-            <div className="absolute text-2xl font-bold text-white z-10" 
-                 style={{ 
-                   textShadow: `0 0 10px #3B82F6, 2px 2px 8px rgba(0,0,0,0.9)`,
-                   fontWeight: '900'
-                 }}>
-              {streak}
-            </div>
-          </div>
-        );
-      }
-
-      if (style === 'demonslayer') {
-        return (
-          <div className="relative flex items-center justify-center w-20 h-24">
-            <svg width="80" height="100" className="absolute" style={{ filter: 'drop-shadow(0 0 10px rgba(251, 146, 60, 0.8))' }}>
-              <defs>
-                <radialGradient id={`dsGrad1-${streak}`}>
-                  <stop offset="0%" stopColor="#FFF7ED" />
-                  <stop offset="40%" stopColor="#FB923C" />
-                  <stop offset="80%" stopColor={color} />
-                  <stop offset="100%" stopColor={color} stopOpacity="0" />
-                </radialGradient>
-                <filter id={`dsGlow-${streak}`}>
-                  <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                  <feMerge>
-                    <feMergeNode in="coloredBlur"/>
-                    <feMergeNode in="coloredBlur"/>
-                    <feMergeNode in="SourceGraphic"/>
-                  </feMerge>
-                </filter>
-              </defs>
-              
-              <path d="M 30 85 L 25 70 Q 22 55 28 40 L 32 25 L 40 12 L 48 25 L 52 40 Q 58 55 55 70 L 50 85 Z" 
-                    fill={`url(#dsGrad1-${streak})`}
-                    stroke={secondaryColor}
-                    strokeWidth="0.5"
-                    opacity="0.9"
-                    filter={`url(#dsGlow-${streak})`}>
-                <animate attributeName="d" 
-                         values="M 30 85 L 25 70 Q 22 55 28 40 L 32 25 L 40 12 L 48 25 L 52 40 Q 58 55 55 70 L 50 85 Z;M 30 85 L 23 68 Q 20 52 30 37 L 35 22 L 40 8 L 45 22 L 50 37 Q 60 52 57 68 L 50 85 Z;M 30 85 L 25 70 Q 22 55 28 40 L 32 25 L 40 12 L 48 25 L 52 40 Q 58 55 55 70 L 50 85 Z" 
-                         dur="1.8s" 
-                         repeatCount="indefinite" />
-              </path>
-
-              <ellipse cx="40" cy="60" rx="8" ry="15" fill="#FFF7ED" opacity="0.6">
-                <animate attributeName="ry" values="15;18;15" dur="1.2s" repeatCount="indefinite" />
-              </ellipse>
-
-              {[...Array(8)].map((_, i) => (
-                <circle key={i} r="1.5" fill="#FCD34D" opacity="0.9">
-                  <animate attributeName="cy" values={`${85};${15};${85}`} dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
-                  <animate attributeName="cx" values={`${30 + i * 3};${32 + i * 3};${30 + i * 3}`} dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
-                  <animate attributeName="opacity" values="0.9;0.3;0.9" dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
-                </circle>
-              ))}
-            </svg>
-            
-            <div className="absolute text-2xl font-bold text-white z-10" 
-                 style={{ 
-                   textShadow: `0 0 10px ${color}, 2px 2px 8px rgba(0,0,0,0.8)`,
-                   fontWeight: '900'
-                 }}>
-              {streak}
-            </div>
-          </div>
-        );
-      }
-
-      if (style === 'anime') {
-        return (
-          <div className="relative flex items-center justify-center w-20 h-24">
-            <svg width="80" height="100" className="absolute">
-              <defs>
-                <radialGradient id={`fireGrad-${streak}`}>
-                  <stop offset="0%" stopColor="#FCD34D" />
-                  <stop offset="50%" stopColor={color} />
-                  <stop offset="100%" stopColor={color} stopOpacity="0.3" />
-                </radialGradient>
-              </defs>
-              <ellipse cx="40" cy="70" rx="20" ry="35" fill={`url(#fireGrad-${streak})`}>
-                <animate attributeName="ry" values="35;40;35" dur="1.5s" repeatCount="indefinite" />
-              </ellipse>
-              <ellipse cx="30" cy="65" rx="15" ry="30" fill={color} opacity="0.7">
-                <animate attributeName="ry" values="30;35;30" dur="1.2s" repeatCount="indefinite" />
-              </ellipse>
-              <ellipse cx="50" cy="65" rx="15" ry="30" fill={color} opacity="0.7">
-                <animate attributeName="ry" values="30;35;30" dur="1.8s" repeatCount="indefinite" />
-              </ellipse>
-              {[...Array(5)].map((_, i) => (
-                <circle key={i} r="2" fill="#FCD34D" opacity="0.8">
-                  <animate attributeName="cy" values="80;20;80" dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
-                  <animate attributeName="cx" values={`${30 + i * 5};${28 + i * 5};${30 + i * 5}`} dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
-                  <animate attributeName="opacity" values="0.8;0;0.8" dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
-                </circle>
-              ))}
-            </svg>
-            <div className="absolute text-2xl font-bold text-white z-10" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)' }}>
-              {streak}
-            </div>
-          </div>
-        );
-      }
-
-      if (style === 'simple') {
-        return (
-          <div className="relative flex items-center justify-center w-20 h-24">
-            <div className="absolute text-2xl font-bold text-white z-10" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)' }}>
-              {streak}
-            </div>
-            <div className="absolute w-12 h-16 rounded-full animate-pulse" style={{ backgroundColor: color, filter: 'blur(8px)' }}></div>
-          </div>
-        );
-      }
-
-      if (style === 'realistic') {
-        return (
-          <div className="relative flex items-center justify-center w-20 h-24">
-            <svg width="80" height="100" className="absolute">
-              <defs>
-                <radialGradient id={`realisticGrad-${streak}`}>
-                  <stop offset="0%" stopColor="#FFF4E6" />
-                  <stop offset="30%" stopColor="#FCD34D" />
-                  <stop offset="60%" stopColor={color} />
-                  <stop offset="100%" stopColor={color} stopOpacity="0" />
-                </radialGradient>
-                <filter id={`glow-${streak}`}>
-                  <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-                  <feMerge>
-                    <feMergeNode in="coloredBlur"/>
-                    <feMergeNode in="SourceGraphic"/>
-                  </feMerge>
-                </filter>
-              </defs>
-              
-              <path d="M 25 80 Q 20 60 25 40 Q 30 25 40 15 Q 50 25 55 40 Q 60 60 55 80 Z" 
-                    fill={`url(#realisticGrad-${streak})`} 
-                    filter={`url(#glow-${streak})`}>
-                <animate attributeName="d" 
-                         values="M 25 80 Q 20 60 25 40 Q 30 25 40 15 Q 50 25 55 40 Q 60 60 55 80 Z;M 25 80 Q 18 55 28 35 Q 32 20 40 10 Q 48 20 52 35 Q 62 55 55 80 Z;M 25 80 Q 20 60 25 40 Q 30 25 40 15 Q 50 25 55 40 Q 60 60 55 80 Z" 
-                         dur="2s" 
-                         repeatCount="indefinite" />
-              </path>
-              
-              <path d="M 30 75 Q 28 60 32 45 Q 35 35 40 28 Q 45 35 48 45 Q 52 60 50 75 Z" 
-                    fill="#FCD34D" 
-                    opacity="0.6">
-                <animate attributeName="d" 
-                         values="M 30 75 Q 28 60 32 45 Q 35 35 40 28 Q 45 35 48 45 Q 52 60 50 75 Z;M 30 75 Q 26 58 34 42 Q 36 32 40 25 Q 44 32 46 42 Q 54 58 50 75 Z;M 30 75 Q 28 60 32 45 Q 35 35 40 28 Q 45 35 48 45 Q 52 60 50 75 Z" 
-                         dur="1.5s" 
-                         repeatCount="indefinite" />
-              </path>
-
-              {[...Array(8)].map((_, i) => (
-                <circle key={i} r="1.5" fill="#FFF4E6" opacity="0.9">
-                  <animate attributeName="cy" values={`${85 - i * 5};${20 - i * 2};${85 - i * 5}`} dur={`${1.5 + i * 0.2}s`} repeatCount="indefinite" />
-                  <animate attributeName="cx" values={`${35 + i * 1.2};${38 + i * 1.2};${35 + i * 1.2}`} dur={`${1.5 + i * 0.2}s`} repeatCount="indefinite" />
-                  <animate attributeName="opacity" values="0.9;0;0.9" dur={`${1.5 + i * 0.2}s`} repeatCount="indefinite" />
-                </circle>
-              ))}
-            </svg>
-            <div className="absolute text-2xl font-bold text-white z-10" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)' }}>
-              {streak}
-            </div>
-          </div>
-        );
-      }
-
-      return null;
-    };
-
-    const initData = () => {
-      const habits = [
-        { id: 'h1', name: '🔥 365 Days - 1 Year!', description: 'Ultimate mastery achieved', mode: 'habit', createdDate: '2023-09-25', currentStreak: 365, longestStreak: 365 },
-        { id: 'h2', name: '🌟 200 Days Strong', description: 'Legendary consistency', mode: 'habit', createdDate: '2024-02-10', currentStreak: 200, longestStreak: 200 },
-        { id: 'h3', name: '💎 150 Days Elite', description: 'Elite level reached', mode: 'habit', createdDate: '2024-04-20', currentStreak: 150, longestStreak: 150 },
-        { id: 'h4', name: '💯 100 Day Milestone', description: 'Century club member', mode: 'habit', createdDate: '2024-06-15', currentStreak: 100, longestStreak: 105 },
-        { id: 'h5', name: '🎯 75 Days Solid', description: 'Three quarters to 100', mode: 'habit', createdDate: '2024-07-10', currentStreak: 75, longestStreak: 75 },
-        { id: 'h6', name: '⚡ 50 Day Champion', description: 'Half century complete', mode: 'habit', createdDate: '2024-08-05', currentStreak: 50, longestStreak: 52 },
-        { id: 'h7', name: '🚀 40 Days Rising', description: 'Approaching 50', mode: 'progress', createdDate: '2024-08-15', currentStreak: 40, longestStreak: 40 },
-        { id: 'h8', name: '⭐ 30 Days Strong', description: 'One month achieved', mode: 'habit', createdDate: '2024-08-25', currentStreak: 30, longestStreak: 30 },
-        { id: 'h9', name: '🌈 25 Days Steady', description: 'Nearly one month', mode: 'progress', createdDate: '2024-08-30', currentStreak: 25, longestStreak: 25 },
-        { id: 'h10', name: '✨ 20 Days Rolling', description: 'Building momentum', mode: 'habit', createdDate: '2024-09-04', currentStreak: 20, longestStreak: 20 },
-        { id: 'h11', name: '🎪 15 Days Active', description: 'Two weeks plus', mode: 'progress', createdDate: '2024-09-09', currentStreak: 15, longestStreak: 17 },
-        { id: 'h12', name: '🌟 10 Day Mark', description: 'Double digits!', mode: 'habit', createdDate: '2024-09-14', currentStreak: 10, longestStreak: 15 },
-        { id: 'h13', name: '💪 8 Days Going', description: 'Over a week', mode: 'habit', createdDate: '2024-09-16', currentStreak: 8, longestStreak: 8 },
-        { id: 'h14', name: '🎯 5 Days Fresh', description: 'First milestone reached', mode: 'progress', createdDate: '2024-09-19', currentStreak: 5, longestStreak: 5 },
-        { id: 'h15', name: '🌱 3 Days New', description: 'Just getting started', mode: 'habit', createdDate: '2024-09-21', currentStreak: 3, longestStreak: 3 },
-        { id: 'h16', name: '🔰 1 Day Beginner', description: 'Day one complete!', mode: 'habit', createdDate: '2024-09-23', currentStreak: 1, longestStreak: 1 }
-      ];
-
-      const checkIns = [];
-      const today = new Date();
-      
-      habits.forEach(habit => {
-        for (let i = habit.currentStreak - 1; i >= 0; i--) {
-          const date = new Date(today);
-          date.setDate(date.getDate() - i);
-          const dateStr = date.toISOString().split('T')[0];
-          
-          const noteTemplates = [
-            'Completed my session today. Felt great and pushed myself hard!',
-            'Another day done! Really proud of maintaining this consistency.',
-            'Excellent progress today. Went beyond my usual routine.',
-            'Solid day. Kept up the momentum and stayed committed to my goals.',
-            'Really motivated today. Completed everything with energy to spare!'
-          ];
-          
-          const notes = noteTemplates[Math.floor(Math.random() * noteTemplates.length)];
-          const rating = notes.length > 80 ? Math.floor(Math.random() * 2) + 9 : Math.floor(Math.random() * 3) + 7;
-          
-          checkIns.push({
-            id: generateId(),
-            habitId: habit.id,
-            date: dateStr,
-            notes,
-            completed: true,
-            aiRating: rating,
-            aiFeedback: rating >= 9 
-              ? 'Outstanding effort! Your detailed notes show true commitment. Keep this momentum going!'
-              : 'Great consistency! You\'re building a strong habit. Consider adding more detail to track your progress better.',
-            aiAdvice: rating >= 9
-              ? 'To maintain this momentum, try setting a new challenge or helping others build similar habits.'
-              : 'Tomorrow, try to include specific metrics, times, or measurements to track your improvement.',
-            aiAnalyzedAt: new Date().toISOString()
-          });
-        }
-      });
-
-      return { habits, checkIns, holidays: [] };
-    };
 
     function App() {
-      const [view, se
+      const [habits, setHabits] = useState([
+        { id: '1', name: '🔥 100 Days', description: 'Century club!', streak: 100 },
+        { id: '2', name: '⚡ 50 Days', description: 'Half century', streak: 50 },
+        { id: '3', name: '🌟 10 Days', description: 'Double digits', streak: 10 }
+      ]);
+
+      const getColor = (streak) => {
+        if (streak >= 100) return '#3B0764';
+        if (streak >= 50) return '#581C87';
+        if (streak >= 10) return '#C4B5FD';
+        if (streak >= 5) return '#A855F7';
+        return '#FB923C';
+      };
+
+      return (
+        <div className="flex flex-col h-screen bg-gray-900">
+          <div className="bg-black border-b border-gray-800 p-4">
+            <h1 className="text-xl font-bold text-white">🔥 Streak Tracker</h1>
+          </div>
+
+          <div className="flex-1 p-8 overflow-auto">
+            <h2 className="text-3xl font-bold text-white mb-8">Your Habits</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {habits.map(habit => (
+                <div key={habit.id} className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                  <h3 className="text-xl font-bold text-white mb-2">{habit.name}</h3>
+                  <p className="text-sm text-gray-400 mb-6">{habit.description}</p>
+                  
+                  <div className="flex justify-center my-6">
+                    <div className="relative flex items-center justify-center w-20 h-24">
+                      <div 
+                        className="absolute text-3xl font-bold text-white z-10" 
+                        style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)' }}
+                      >
+                        {habit.streak}
+                      </div>
+                      <div 
+                        className="absolute w-16 h-20 rounded-full animate-pulse" 
+                        style={{ 
+                          backgroundColor: getColor(habit.streak),
+                          filter: 'blur(10px)' 
+                        }}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="text-center text-gray-400 text-sm mt-4">
+                    Current Streak: {habit.streak} days
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-black border-t border-gray-800 p-4 text-center text-gray-500 text-sm">
+            Streak Tracker v1.0 - Keep the fire burning! 🔥
+          </div>
+        </div>
+      );
+    }
+
+    // Wait for DOM to be ready
+    window.addEventListener('DOMContentLoaded', () => {
+      const rootElement = document.getElementById('root');
+      if (rootElement) {
+        const root = ReactDOM.createRoot(rootElement);
+        root.render(<App />);
+      } else {
+        console.error('Root element not found!');
+      }
+    });
+  </script>
+</body>
+</html>
